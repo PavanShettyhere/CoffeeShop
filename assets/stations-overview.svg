@@ -1,0 +1,52 @@
+<svg width="1280" height="360" viewBox="0 0 1280 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="360" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#122534"/>
+      <stop offset="1" stop-color="#0A1117"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#FFBC57"/>
+      <stop offset="1" stop-color="#FF8A3D"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="360" rx="26" fill="url(#bg)"/>
+  <text x="50" y="62" fill="#FFBC57" font-family="Trebuchet MS, sans-serif" font-size="18" letter-spacing="4">COFFEE LOOP</text>
+  <text x="50" y="106" fill="#F1F7FA" font-family="Gill Sans, Trebuchet MS, sans-serif" font-size="42" font-weight="700">Stations And Build Flow</text>
+
+  <g font-family="Gill Sans, Trebuchet MS, sans-serif" font-size="22" font-weight="700">
+    <rect x="50" y="166" width="138" height="100" rx="22" fill="#13232F" stroke="white" stroke-opacity="0.08"/>
+    <text x="80" y="210" fill="#F1F7FA">Cup Wall</text>
+    <text x="80" y="238" fill="#9AB1BC" font-family="Trebuchet MS, sans-serif" font-size="16" font-weight="400">Pick the right cup</text>
+
+    <rect x="224" y="166" width="138" height="100" rx="22" fill="#13232F" stroke="white" stroke-opacity="0.08"/>
+    <text x="255" y="210" fill="#F1F7FA">Grinder</text>
+    <text x="250" y="238" fill="#9AB1BC" font-family="Trebuchet MS, sans-serif" font-size="16" font-weight="400">Prep espresso grounds</text>
+
+    <rect x="398" y="166" width="178" height="100" rx="22" fill="#13232F" stroke="white" stroke-opacity="0.08"/>
+    <text x="432" y="210" fill="#F1F7FA">Espresso Machine</text>
+    <text x="434" y="238" fill="#9AB1BC" font-family="Trebuchet MS, sans-serif" font-size="16" font-weight="400">Pull espresso or ristretto</text>
+
+    <rect x="612" y="166" width="156" height="100" rx="22" fill="#13232F" stroke="white" stroke-opacity="0.08"/>
+    <text x="643" y="210" fill="#F1F7FA">Steam Wand</text>
+    <text x="636" y="238" fill="#9AB1BC" font-family="Trebuchet MS, sans-serif" font-size="16" font-weight="400">Milk, foam, microfoam</text>
+
+    <rect x="804" y="166" width="132" height="100" rx="22" fill="#13232F" stroke="white" stroke-opacity="0.08"/>
+    <text x="836" y="210" fill="#F1F7FA">Water</text>
+    <text x="826" y="238" fill="#9AB1BC" font-family="Trebuchet MS, sans-serif" font-size="16" font-weight="400">Americanos</text>
+
+    <rect x="972" y="166" width="120" height="100" rx="22" fill="#13232F" stroke="white" stroke-opacity="0.08"/>
+    <text x="1000" y="210" fill="#F1F7FA">Syrup</text>
+    <text x="989" y="238" fill="#9AB1BC" font-family="Trebuchet MS, sans-serif" font-size="16" font-weight="400">Mocha sauce</text>
+
+    <rect x="1128" y="166" width="102" height="100" rx="22" fill="url(#gold)"/>
+    <text x="1148" y="210" fill="#261307">Serve</text>
+    <text x="1144" y="238" fill="#3A200A" font-family="Trebuchet MS, sans-serif" font-size="16" font-weight="400">Deliver fast</text>
+  </g>
+
+  <path d="M194 216H218" stroke="#FFBC57" stroke-width="4" stroke-linecap="round"/>
+  <path d="M368 216H392" stroke="#FFBC57" stroke-width="4" stroke-linecap="round"/>
+  <path d="M582 216H606" stroke="#FFBC57" stroke-width="4" stroke-linecap="round"/>
+  <path d="M774 216H798" stroke="#FFBC57" stroke-width="4" stroke-linecap="round"/>
+  <path d="M942 216H966" stroke="#FFBC57" stroke-width="4" stroke-linecap="round"/>
+  <path d="M1098 216H1122" stroke="#FFBC57" stroke-width="4" stroke-linecap="round"/>
+</svg>
