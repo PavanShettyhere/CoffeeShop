@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Velvet Pour</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="panel branding-panel">
+      <div class="eyebrow">Boutique Barista Sim</div>
+      <h1>Velvet Pour</h1>
+      <p class="lead">
+        Run a premium pixel coffee shop. Move like a Habbo-style room game, craft drinks at real café stations,
+        and keep your queue moving before patience runs out.
+      </p>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <span>Score</span>
+          <strong id="scoreValue">0</strong>
+        </div>
+        <div class="stat-card">
+          <span>Coins</span>
+          <strong id="coinsValue">0</strong>
+        </div>
+        <div class="stat-card">
+          <span>Rep</span>
+          <strong id="reputationValue">100</strong>
+        </div>
+        <div class="stat-card">
+          <span>Shift</span>
+          <strong id="shiftValue">03:00</strong>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button id="startButton" class="primary-button">Start Shift</button>
+        <button id="soundButton" class="secondary-button">Sound: On</button>
+        <button id="trashButton" class="secondary-button">Trash Cup</button>
+      </div>
+
+      <div class="quick-guide glass-card">
+        <h2>How To Play</h2>
+        <ul>
+          <li>Click a floor tile or station to move. `WASD` or arrow keys also work.</li>
+          <li>Stand near a machine and use the action buttons or number keys to perform the next step.</li>
+          <li>Build the drink in the right order, then take it to the service counter.</li>
+          <li>Serve perfect drinks fast to build combo, coins, and reputation.</li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="game-column">
+      <section class="hero-bar glass-card">
+        <div>
+          <div class="eyebrow">Modern Isometric Café</div>
+          <h2>Craft rush-hour coffee with station-based recipes</h2>
+        </div>
+        <div class="ticker">
+          <div><span>Customers served</span><strong id="servedValue">0</strong></div>
+          <div><span>Combo</span><strong id="comboValue">x1</strong></div>
+          <div><span>Day rank</span><strong id="rankValue">Rising Roaster</strong></div>
+        </div>
+      </section>
+
+      <section class="game-stage panel">
+        <div class="canvas-wrap">
+          <canvas id="gameCanvas" width="1400" height="900" aria-label="Velvet Pour game world"></canvas>
+          <div class="overlay-card" id="overlayCard">
+            <div class="eyebrow">Shift briefing</div>
+            <h3>Open the café</h3>
+            <p>
+              Customers will arrive with espresso-based orders. Use the right cup, the right machine,
+              and the right procedure to serve them before their patience runs out.
+            </p>
+            <p class="overlay-tip">Start Shift unlocks audio and begins the order rush.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <aside class="panel sidebar">
+      <section class="glass-card station-card">
+        <div class="eyebrow">Nearby Station</div>
+        <h2 id="stationTitle">Walk up to a machine</h2>
+        <p id="stationDescription">Machines expose different drink actions when you are in range.</p>
+        <div class="action-list" id="actionList"></div>
+      </section>
+
+      <section class="glass-card cup-card">
+        <div class="eyebrow">Current Cup</div>
+        <h2 id="cupTitle">No drink in hand</h2>
+        <p id="cupSubtitle">Grab a cup from the cup wall to start a new order.</p>
+        <div class="cup-progress" id="cupProgress"></div>
+      </section>
+
+      <section class="glass-card orders-card">
+        <div class="eyebrow">Order Queue</div>
+        <div id="ordersList" class="orders-list"></div>
+      </section>
+
+      <section class="glass-card recipe-card">
+        <div class="eyebrow">Menu & Procedures</div>
+        <div id="recipeList" class="recipe-list"></div>
+      </section>
+
+      <section class="glass-card source-card">
+        <div class="eyebrow">Recipe Notes</div>
+        <p id="sourceSummary">
+          Recipes are modeled from current coffee references and official Starbucks at Home espresso drink procedures.
+        </p>
+        <div id="sourceList" class="source-list"></div>
+      </section>
+    </aside>
+  </div>
+
+  <script src="./script.js" defer></script>
+</body>
+</html>
