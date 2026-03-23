@@ -111,27 +111,229 @@
   let audio = null;
   let lastTime = performance.now();
 
-  function noop() {}
+  function isoToScreen(tileX, tileY) {
+    return {
+      x: origin.x + (tileX - tileY) * (TILE_W / 2),
+      y: origin.y + (tileX + tileY) * (TILE_H / 2)
+    };
+  }
 
-  window.__velvetPour = {
-    canvas,
-    ctx,
-    ui,
-    actionMeta,
-    recipes,
-    recipeMap,
-    stations,
-    customerNames,
-    palette,
-    state,
-    player,
-    origin,
-    TILE_W,
-    TILE_H,
-    GRID_W,
-    GRID_H,
-    audio,
-    lastTime,
-    noop
-  };
+  function screenToTile(screenX, screenY) {
+    const localX = screenX - origin.x;
+    const localY = screenY - origin.y;
+    const x = (localY / (TILE_H / 2) + localX / (TILE_W / 2)) / 2;
+    const y = (localY / (TILE_H / 2) - localX / (TILE_W / 2)) / 2;
+    return { x: Math.round(x), y: Math.round(y) };
+  }
+
+  function clampTile(x, y) {
+    return {
+      x: Math.max(0, Math.min(GRID_W - 1, x)),
+      y: Math.max(0, Math.min(GRID_H - 1, y))
+    };
+  }
+
+  function isInBounds(tileX, tileY) {
+    return tileX >= 0 && tileX < GRID_W && tileY >= 0 && tileY < GRID_H;
+  }
+
+  function canMoveTo(tileX, tileY) {
+    if (!isInBounds(tileX, tileY)) {
+      return false;
+    }
+    return !stations.some((station) => station.tile.x === tileX && station.tile.y === tileY);
+  }
+
+  function setMoveTarget(tileX, tileY) {
+    const next = clampTile(tileX, tileY);
+    if (canMoveTo(next.x, next.y)) {
+      player.targetX = next.x;
+      player.targetY = next.y;
+    }
+  }
+
+  function getNearbyStation() {
+    return stations.find((station) => {
+      const dx = Math.abs(player.tileX - station.interactionTile.x);
+      const dy = Math.abs(player.tileY - station.interactionTile.y);
+      return dx + dy <= 0.16;
+    }) || null;
+  }
+
+  function bestRecipeMatch(steps) {
+    if (!steps.length) {
+      return null;
+    }
+    let best = null;
+    let bestScore = -1;
+    recipes.forEach((recipe) => {
+      const max = Math.min(recipe.sequence.length, steps.length);
+      let prefix = 0;
+      for (let i = 0; i < max; i += 1) {
+        if (recipe.sequence[i] !== steps[i]) {
+          break;
+        }
+        prefix += 1;
+      }
+      if (prefix > bestScore) {
+        best = recipe;
+        bestScore = prefix;
+      }
+    });
+    return best;
+  }
+
+  function rankForScore(score) {
+    if (score >= 2400) return "Legendary Brewer";
+    if (score >= 1600) return "Gold Shift Lead";
+    if (score >= 900) return "Velvet Pro";
+    if (score >= 300) return "Rising Roaster";
+    return "Apprentice";
+  }
+
+  function formatTime(seconds) {
+    const safe = Math.max(0, Math.ceil(seconds));
+    const mins = Math.floor(safe / 60);
+    const secs = safe % 60;
+    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  }
+
+  function queueTile(index) {
+    const queue = [
+      { x: 4, y: 8 },
+      { x: 3, y: 8 },
+      { x: 5, y: 8 },
+      { x: 2, y: 8 }
+    ];
+    return queue[index] || queue[queue.length - 1];
+  }
+
+  function makeOrder(id) {
+    const recipe = recipes[Math.floor(Math.random() * recipes.length)];
+    const colors = palette[Math.floor(Math.random() * palette.length)];
+    const name = customerNames[Math.floor(Math.random() * customerNames.length)];
+    return {
+      id,
+      name,
+      recipeKey: recipe.key,
+      patience: recipe.patience,
+      patienceMax: recipe.patience,
+      colors
+    };
+  }
+
+  function flashMessage(text, color) {
+    state.floatingText.push({
+      x: canvas.clientWidth / 2,
+      y: 70,
+      text,
+      color,
+      life: 1.8
+    });
+  }
+
+  function spawnParticles(tileX, tileY, actionKey) {
+    const point = isoToScreen(tileX, tileY);
+    const color = ["steam_milk", "foam_cap", "microfoam"].includes(actionKey) ? "#dffcff" : "#ffbc57";
+    for (let i = 0; i < 14; i += 1) {
+      state.particles.push({
+        x: point.x,
+        y: point.y - 48,
+        vx: (Math.random() - 0.5) * 60,
+        vy: -20 - Math.random() * 90,
+        life: 0.7 + Math.random() * 0.4,
+        color
+      });
+    }
+  }
+
+  function syncUi() {
+    ui.score.textContent = state.score;
+    ui.coins.textContent = state.coins;
+    ui.reputation.textContent = state.reputation;
+    ui.shift.textContent = formatTime(state.shiftRemaining);
+    ui.served.textContent = state.customersServed;
+    ui.combo.textContent = `x${state.combo.toFixed(2).replace(/\.00$/, "")}`;
+    ui.rank.textContent = rankForScore(state.score);
+    ui.soundButton.textContent = `Sound: ${audio && audio.enabled ? "On" : "Off"}`;
+
+    const station = getNearbyStation();
+    ui.actionList.innerHTML = "";
+    if (!station) {
+      ui.stationTitle.textContent = "Walk up to a machine";
+      ui.stationDescription.textContent = "Machines expose different drink actions when you are in range.";
+    } else {
+      ui.stationTitle.textContent = station.name;
+      ui.stationDescription.textContent = station.description;
+      const actions = station.id === "service_counter" ? ["serve"] : station.actions;
+      actions.forEach((actionKey, index) => {
+        const button = document.createElement("button");
+        button.className = "action-button";
+        button.disabled = !state.started || !!player.currentTask;
+        button.innerHTML = `<strong>${index + 1}. ${actionMeta[actionKey].label}</strong><span>${actionMeta[actionKey].detail}</span>`;
+        button.addEventListener("click", () => startTask(actionKey));
+        ui.actionList.appendChild(button);
+      });
+    }
+
+    if (!state.activeCup) {
+      ui.cupTitle.textContent = "No drink in hand";
+      ui.cupSubtitle.textContent = "Grab a cup from the cup wall to start a new order.";
+      ui.cupProgress.innerHTML = "";
+    } else {
+      const matching = bestRecipeMatch(state.activeCup.steps);
+      ui.cupTitle.textContent = matching ? `Building: ${matching.name}` : "Experimental build";
+      ui.cupSubtitle.textContent = `${state.activeCup.steps.length} step${state.activeCup.steps.length === 1 ? "" : "s"} in current cup`;
+      ui.cupProgress.innerHTML = "";
+      state.activeCup.steps.forEach((step, index) => {
+        const chip = document.createElement("div");
+        chip.className = "progress-chip";
+        chip.innerHTML = `<strong>${index + 1}. ${actionMeta[step].label}</strong><span>${actionMeta[step].detail}</span>`;
+        ui.cupProgress.appendChild(chip);
+      });
+    }
+
+    ui.ordersList.innerHTML = "";
+    if (!state.customers.length) {
+      const empty = document.createElement("div");
+      empty.className = "order-card";
+      empty.innerHTML = "<h3>No one in line</h3><div class=\"order-meta\"><span>Doors closed for the moment</span><span>Prep for the next rush</span></div>";
+      ui.ordersList.appendChild(empty);
+    } else {
+      state.customers.forEach((customer, index) => {
+        const recipe = recipeMap[customer.recipeKey];
+        const card = document.createElement("div");
+        card.className = "order-card";
+        card.innerHTML = `
+          <h3>${index === 0 ? "Front" : "Queue"}: ${customer.name}</h3>
+          <div class="order-meta">
+            <span>${recipe.name}</span>
+            <span>${recipe.price} coins</span>
+          </div>
+          <div class="order-meta">
+            <span>${recipe.stationNote}</span>
+            <span>${Math.ceil(customer.patience)} patience</span>
+          </div>
+          <div class="patience-bar"><i style="width:${(customer.patience / customer.patienceMax) * 100}%"></i></div>
+        `;
+        ui.ordersList.appendChild(card);
+      });
+    }
+  }
+
+  function startTask(actionKey) {}
+
+  function serveFrontCustomer() {}
+
+  function trashCup() {}
+
+  function updateMovement() {}
+
+  function updateTask() {}
+
+  function updateParticles() {}
+
+  function update() {}
+
+  function render() {}
 }());
