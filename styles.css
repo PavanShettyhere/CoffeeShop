@@ -135,6 +135,11 @@ p {
   overflow-wrap: anywhere;
 }
 
+code {
+  font-family: Consolas, "Courier New", monospace;
+  color: #f7f0dc;
+}
+
 .lead {
   font-size: 1rem;
   max-width: 31ch;

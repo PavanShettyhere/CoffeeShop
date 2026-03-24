@@ -137,14 +137,14 @@
   const recipeMap = Object.fromEntries(recipes.map((recipe) => [recipe.key, recipe]));
 
   const stations = [
-    { id: "cups", name: "Cup Wall", description: "Pick the right vessel before you start building the drink.", tile: { x: 1, y: 2 }, interactionTile: { x: 2, y: 2 }, height: 74, color: "#bc9164", accent: "#ffcf87", actions: ["cup_espresso", "cup_tulip", "cup_mug"] },
-    { id: "grinder", name: "Precision Grinder", description: "Fresh grounds first. Espresso drinks start here.", tile: { x: 2, y: 4 }, interactionTile: { x: 2, y: 5 }, height: 82, color: "#6a7785", accent: "#4fd3db", actions: ["grind"] },
-    { id: "espresso_machine", name: "Aurora Espresso", description: "Pull standard shots or shorter ristretto shots.", tile: { x: 4, y: 3 }, interactionTile: { x: 4, y: 4 }, height: 90, color: "#8c5d47", accent: "#ff8a3d", actions: ["espresso", "ristretto"] },
-    { id: "steam_wand", name: "Steam Wand", description: "Steam milk, build airy foam, or groom microfoam.", tile: { x: 6, y: 3 }, interactionTile: { x: 6, y: 4 }, height: 88, color: "#6c808f", accent: "#b7eff5", actions: ["steam_milk", "foam_cap", "microfoam"] },
-    { id: "water_tap", name: "Water Tap", description: "Only used for americanos. Water goes in before the shots.", tile: { x: 7, y: 2 }, interactionTile: { x: 7, y: 3 }, height: 74, color: "#4c6d86", accent: "#7fe1ff", actions: ["hot_water"] },
-    { id: "syrup_rail", name: "Syrup Rail", description: "Mocha sauce for chocolate builds.", tile: { x: 7, y: 5 }, interactionTile: { x: 6, y: 5 }, height: 74, color: "#83575c", accent: "#ffc46d", actions: ["mocha_sauce"] },
-    { id: "topping_bar", name: "Topping Bar", description: "Finish mochas with whipped cream.", tile: { x: 5, y: 6 }, interactionTile: { x: 5, y: 5 }, height: 68, color: "#68735f", accent: "#f0f4ff", actions: ["whip"] },
-    { id: "service_counter", name: "Service Counter", description: "Serve the front customer when the drink is complete.", tile: { x: 4, y: 7 }, interactionTile: { x: 4, y: 6 }, height: 78, color: "#846851", accent: "#ffbc57", actions: ["serve"] }
+    { id: "cups", name: "Cup Wall", label: "CUP WALL", description: "Pick the right vessel before you start building the drink.", tile: { x: 1, y: 2 }, interactionTile: { x: 2, y: 2 }, height: 74, color: "#bc9164", accent: "#ffcf87", actions: ["cup_espresso", "cup_tulip", "cup_mug"] },
+    { id: "grinder", name: "Precision Grinder", label: "GRINDER", description: "Fresh grounds first. Espresso drinks start here.", tile: { x: 2, y: 4 }, interactionTile: { x: 2, y: 5 }, height: 82, color: "#6a7785", accent: "#4fd3db", actions: ["grind"] },
+    { id: "espresso_machine", name: "Aurora Espresso", label: "ESPRESSO", description: "Pull standard shots or shorter ristretto shots.", tile: { x: 4, y: 3 }, interactionTile: { x: 4, y: 4 }, height: 90, color: "#8c5d47", accent: "#ff8a3d", actions: ["espresso", "ristretto"] },
+    { id: "steam_wand", name: "Steam Wand", label: "STEAM WAND", description: "Steam milk, build airy foam, or groom microfoam.", tile: { x: 6, y: 3 }, interactionTile: { x: 6, y: 4 }, height: 88, color: "#6c808f", accent: "#b7eff5", actions: ["steam_milk", "foam_cap", "microfoam"] },
+    { id: "water_tap", name: "Water Tap", label: "WATER", description: "Only used for americanos. Water goes in before the shots.", tile: { x: 7, y: 2 }, interactionTile: { x: 7, y: 3 }, height: 74, color: "#4c6d86", accent: "#7fe1ff", actions: ["hot_water"] },
+    { id: "syrup_rail", name: "Syrup Rail", label: "SYRUP", description: "Mocha sauce for chocolate builds.", tile: { x: 7, y: 5 }, interactionTile: { x: 6, y: 5 }, height: 74, color: "#83575c", accent: "#ffc46d", actions: ["mocha_sauce"] },
+    { id: "topping_bar", name: "Topping Bar", label: "TOPPING", description: "Finish mochas with whipped cream.", tile: { x: 5, y: 6 }, interactionTile: { x: 5, y: 5 }, height: 68, color: "#68735f", accent: "#f0f4ff", actions: ["whip"] },
+    { id: "service_counter", name: "Service Counter", label: "COUNTER", description: "Serve the front customer when the drink is complete.", tile: { x: 4, y: 7 }, interactionTile: { x: 4, y: 6 }, height: 78, color: "#846851", accent: "#ffbc57", actions: ["serve"] }
   ];
 
   const customerNames = ["Mia", "Noah", "Avery", "Theo", "Lina", "Kai", "Nova", "Jules", "Ivy", "Zara", "Otis", "Ezra"];
@@ -445,7 +445,7 @@
   }
 
   function startTask(actionKey) {
-    if (!state.started || state.gameOver || player.currentTask) {
+    if (!state.started || state.gameOver || state.paused || state.view !== "game" || player.currentTask) {
       return;
     }
     const station = getNearbyStation();
@@ -526,7 +526,7 @@
 
     if (perfect) {
       const patienceRatio = customer.patience / customer.patienceMax;
-      const reward = Math.round(recipe.price * (1 + patienceRatio * 0.5) * state.combo);
+      const reward = Math.round(customer.offerPrice * 10 * (1 + patienceRatio * 0.5) * state.combo);
       state.score += reward * 10;
       state.coins += reward;
       state.combo = Math.min(state.combo + 0.25, 4);
@@ -559,7 +559,7 @@
   }
 
   function updateMovement(dt) {
-    if (player.currentTask) {
+    if (player.currentTask || state.paused || state.view !== "game") {
       return;
     }
 
@@ -627,7 +627,7 @@
   }
 
   function update(dt) {
-    if (state.started && !state.gameOver) {
+    if (state.started && !state.gameOver && !state.paused) {
       state.shiftRemaining -= dt;
       state.spawnCooldown -= dt;
 
@@ -702,18 +702,21 @@
   }
 
   function buildRecipeBoard() {
+    ui.traineeGrid.innerHTML = "";
     recipes.forEach((recipe) => {
       const item = document.createElement("div");
-      item.className = "recipe-item";
-      const sequence = recipe.sequence.map((step) => actionMeta[step].label).join(" -> ");
+      item.className = "training-card";
+      const sequence = recipe.steps.map((step) => `<li>${step}</li>`).join("");
       item.innerHTML = `
         <h3>${recipe.name}</h3>
+        <div class="training-meta">${formatEuro(recipe.basePrice)} base menu price</div>
         <p>${recipe.stationNote}</p>
         <div class="recipe-tools">Tools: ${recipe.tools}</div>
-        <div class="recipe-meter"><i style="width:${(recipe.price / 13) * 100}%"></i></div>
-        <p>${sequence}</p>
+        <p>Cup: ${recipe.cupName}</p>
+        <p>${recipe.trainerTip}</p>
+        <ul>${sequence}</ul>
       `;
-      ui.recipeList.appendChild(item);
+      ui.traineeGrid.appendChild(item);
     });
   }
 
@@ -732,6 +735,33 @@
       item.innerHTML = `<a href="${source.href}" target="_blank" rel="noreferrer">${source.label}</a>`;
       ui.sourceList.appendChild(item);
     });
+  }
+
+  function setView(view) {
+    state.view = view;
+    if (state.started) {
+      state.paused = view === "training";
+    }
+    state.keys.clear();
+    syncUi();
+  }
+
+  function stopShift() {
+    state.started = false;
+    state.paused = false;
+    state.gameOver = false;
+    state.customers = [];
+    state.activeCup = null;
+    state.keys.clear();
+    player.currentTask = null;
+    ui.overlay.style.display = "block";
+    ui.overlay.innerHTML = `
+      <div class="eyebrow">Shift stopped</div>
+      <h3>Floor closed by owner</h3>
+      <p>The room is idle. Start a new shift when you want the live queue back.</p>
+      <p class="overlay-tip">Use the trainee zone to review recipes before restarting.</p>
+    `;
+    syncUi();
   }
 
   function drawWallPanel(tileX, tileY, length, color, rightSide = false) {
@@ -812,6 +842,81 @@
     ctx.fillStyle = "#ffbc57";
     ctx.font = "bold 28px Gill Sans";
     ctx.fillText("VELVET POUR", signPos.x - 18, signPos.y - 48);
+
+    drawCafeTable(isoToScreen(1.25, 6.65), "#7b5a47");
+    drawCafeTable(isoToScreen(2.35, 7.25), "#6a4b39");
+    drawCafeTable(isoToScreen(6.85, 7.4), "#815f49");
+    drawCashCounter();
+    drawLiveMenuBoard();
+  }
+
+  function drawCafeTable(point, color) {
+    ctx.fillStyle = "rgba(0,0,0,0.18)";
+    ctx.beginPath();
+    ctx.ellipse(point.x, point.y + 18, 42, 16, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.ellipse(point.x, point.y - 8, 42, 18, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillRect(point.x - 6, point.y - 8, 12, 40);
+
+    [
+      { x: -42, y: 8 },
+      { x: 42, y: 8 },
+      { x: -24, y: 28 },
+      { x: 24, y: 28 }
+    ].forEach((chair) => {
+      ctx.fillStyle = shade(color, -22);
+      ctx.fillRect(point.x + chair.x - 12, point.y + chair.y - 4, 24, 10);
+      ctx.fillRect(point.x + chair.x - 9, point.y + chair.y + 6, 4, 16);
+      ctx.fillRect(point.x + chair.x + 5, point.y + chair.y + 6, 4, 16);
+    });
+  }
+
+  function drawCashCounter() {
+    const counter = isoToScreen(7.45, 6.9);
+    drawPrism(counter.x, counter.y, TILE_W * 0.86, TILE_H * 0.82, 84, "#5b4337");
+    ctx.fillStyle = "#f1f4fb";
+    ctx.fillRect(counter.x - 24, counter.y - 62, 48, 14);
+    ctx.fillStyle = "#151b21";
+    ctx.fillRect(counter.x - 18, counter.y - 54, 36, 24);
+    ctx.fillStyle = "#4fd3db";
+    ctx.fillRect(counter.x - 12, counter.y - 48, 24, 8);
+    ctx.fillStyle = "#ffbc57";
+    ctx.font = "bold 14px Trebuchet MS";
+    ctx.fillText("CASH", counter.x - 18, counter.y - 74);
+  }
+
+  function drawLiveMenuBoard() {
+    const parts = getBoardDateParts();
+    const boardX = 72;
+    const boardY = 66;
+    const boardW = 330;
+    const boardH = 236;
+
+    roundedRect(boardX - 16, boardY - 16, boardW + 32, boardH + 32, 26, "#6b4b37");
+    ctx.fillStyle = "#120f0d";
+    ctx.fillRect(boardX, boardY, boardW, boardH);
+    ctx.strokeStyle = "rgba(255,255,255,0.12)";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(boardX, boardY, boardW, boardH);
+
+    ctx.fillStyle = "#f2f4f6";
+    ctx.font = "bold 18px Consolas";
+    ctx.fillText("HOT DRINKS", boardX + 18, boardY + 28);
+    ctx.fillText(parts.time, boardX + 232, boardY + 28);
+    ctx.font = "16px Consolas";
+    ctx.fillText(parts.day, boardX + 18, boardY + 52);
+    ctx.fillText(parts.date, boardX + 152, boardY + 52);
+
+    recipes.forEach((recipe, index) => {
+      const price = formatEuro(getRecipePrice(recipe)).replace("EUR ", "");
+      const lineY = boardY + 88 + index * 24;
+      const dots = ".".repeat(Math.max(4, 27 - recipe.boardLabel.length - price.length));
+      ctx.fillText(`${recipe.boardLabel} ${dots} ${price}`, boardX + 18, lineY);
+    });
   }
 
   function drawPrism(centerX, baseY, width, depth, height, color) {
@@ -896,6 +1001,11 @@
       ctx.closePath();
       ctx.stroke();
     }
+
+    roundedRect(p.x - 58, p.y - station.height - 34, 116, 24, 10, "rgba(7,16,24,0.84)");
+    ctx.fillStyle = "#f1f7fa";
+    ctx.font = "bold 11px Trebuchet MS";
+    ctx.fillText(station.label || station.name.toUpperCase(), p.x - 48, p.y - station.height - 18);
   }
 
   function drawAvatar(centerX, baseY, colors, isPlayer) {
@@ -1077,11 +1187,11 @@
 
     const context = new (window.AudioContext || window.webkitAudioContext)();
     const master = context.createGain();
-    master.gain.value = 0.18;
+    master.gain.value = 0.38;
     master.connect(context.destination);
 
     const ambience = context.createGain();
-    ambience.gain.value = 0.035;
+    ambience.gain.value = 0.06;
     ambience.connect(master);
 
     const noiseBuffer = context.createBuffer(1, context.sampleRate * 2, context.sampleRate);
@@ -1099,7 +1209,34 @@
     noise.connect(filter).connect(ambience);
     noise.start();
 
-    audio = { context, master, enabled: true };
+    audio = {
+      context,
+      master,
+      enabled: true,
+      ambienceTimer: window.setInterval(() => {
+        if (!audio || !audio.enabled) {
+          return;
+        }
+        const now = context.currentTime;
+        const pad = context.createOscillator();
+        const lift = context.createOscillator();
+        const padGain = context.createGain();
+        pad.type = "sine";
+        lift.type = "triangle";
+        pad.frequency.setValueAtTime(196, now);
+        lift.frequency.setValueAtTime(392, now);
+        padGain.gain.setValueAtTime(0.0001, now);
+        padGain.gain.exponentialRampToValueAtTime(0.04, now + 0.08);
+        padGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.6);
+        pad.connect(padGain);
+        lift.connect(padGain);
+        padGain.connect(master);
+        pad.start(now);
+        lift.start(now);
+        pad.stop(now + 1.7);
+        lift.stop(now + 1.7);
+      }, 4500)
+    };
   }
 
   function playSfx(kind) {
@@ -1142,15 +1279,15 @@
     }[kind] || "square";
 
     const config = {
-      brew: { freq: 180, end: 120, dur: 0.2, vol: 0.08 },
-      cup: { freq: 640, end: 720, dur: 0.12, vol: 0.07 },
-      serve: { freq: 660, end: 990, dur: 0.28, vol: 0.09 },
-      arrive: { freq: 420, end: 520, dur: 0.2, vol: 0.05 },
-      error: { freq: 220, end: 180, dur: 0.22, vol: 0.08 },
-      leave: { freq: 180, end: 140, dur: 0.18, vol: 0.06 },
-      trash: { freq: 120, end: 90, dur: 0.15, vol: 0.06 },
-      close: { freq: 440, end: 240, dur: 0.8, vol: 0.06 }
-    }[kind] || { freq: 240, end: 280, dur: 0.15, vol: 0.05 };
+      brew: { freq: 180, end: 120, dur: 0.2, vol: 0.13 },
+      cup: { freq: 640, end: 720, dur: 0.12, vol: 0.12 },
+      serve: { freq: 660, end: 990, dur: 0.28, vol: 0.16 },
+      arrive: { freq: 420, end: 520, dur: 0.2, vol: 0.1 },
+      error: { freq: 220, end: 180, dur: 0.22, vol: 0.12 },
+      leave: { freq: 180, end: 140, dur: 0.18, vol: 0.09 },
+      trash: { freq: 120, end: 90, dur: 0.15, vol: 0.09 },
+      close: { freq: 440, end: 240, dur: 0.8, vol: 0.1 }
+    }[kind] || { freq: 240, end: 280, dur: 0.15, vol: 0.08 };
 
     gain.gain.setValueAtTime(0.0001, now);
     gain.gain.exponentialRampToValueAtTime(config.vol, now + 0.02);
@@ -1166,6 +1303,8 @@
     initAudio();
     state.started = true;
     state.gameOver = false;
+    state.paused = false;
+    state.view = "game";
     state.score = 0;
     state.coins = 0;
     state.reputation = 100;
@@ -1191,6 +1330,9 @@
   }
 
   function handleCanvasClick(event) {
+    if (state.view !== "game" || state.paused) {
+      return;
+    }
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
@@ -1210,11 +1352,11 @@
 
   function handleKeyDown(event) {
     const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
-    if (["w", "a", "s", "d", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(key)) {
+    if (["w", "a", "s", "d", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(key) && state.view === "game" && !state.paused) {
       state.keys.add(key);
       event.preventDefault();
     }
-    if (["1", "2", "3"].includes(key)) {
+    if (["1", "2", "3"].includes(key) && state.view === "game" && !state.paused) {
       const station = getNearbyStation();
       if (station) {
         const actions = station.id === "service_counter" ? ["serve"] : station.actions;
@@ -1224,7 +1366,7 @@
         }
       }
     }
-    if (key === " ") {
+    if (key === " " && state.view === "game" && !state.paused) {
       const station = getNearbyStation();
       if (station) {
         const actions = station.id === "service_counter" ? ["serve"] : station.actions;
@@ -1250,6 +1392,9 @@
   }
 
   ui.startButton.addEventListener("click", startShift);
+  ui.stopButton.addEventListener("click", stopShift);
+  ui.gameTabButton.addEventListener("click", () => setView("game"));
+  ui.trainingTabButton.addEventListener("click", () => setView("training"));
   ui.soundButton.addEventListener("click", () => {
     if (!audio) {
       initAudio();
@@ -1265,6 +1410,11 @@
   canvas.addEventListener("click", handleCanvasClick);
   window.addEventListener("keydown", handleKeyDown);
   window.addEventListener("keyup", handleKeyUp);
+  window.addEventListener("pointerdown", () => {
+    if (audio && audio.context.state === "suspended") {
+      audio.context.resume();
+    }
+  });
   window.addEventListener("resize", resizeCanvas);
 
   buildRecipeBoard();
