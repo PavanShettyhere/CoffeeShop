@@ -333,7 +333,6 @@
         [196, 233.08, 293.66]
       ];
       let padIndex = 0;
-      playSoftPad(context.currentTime, padChords[padIndex]);
       const ambienceTimer = window.setInterval(() => {
         if (!audio || !audio.enabled || !state.started) return;
         padIndex = (padIndex + 1) % padChords.length;
