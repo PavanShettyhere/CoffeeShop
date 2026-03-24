@@ -288,9 +288,9 @@ button:disabled {
 
 .menu-board {
   position: relative;
-  width: 262px;
-  min-width: 262px;
-  max-width: 262px;
+  width: 286px;
+  min-width: 286px;
+  max-width: 286px;
   justify-self: center;
   padding: 10px 10px 8px;
   border-radius: 14px;
@@ -316,8 +316,8 @@ button:disabled {
 .menu-board__meta,
 .menu-board__row {
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  gap: 6px;
   align-items: center;
   font-family: Consolas, "Courier New", monospace;
   letter-spacing: 0.12em;
@@ -342,6 +342,7 @@ button:disabled {
 
 .menu-board__row {
   font-size: 0.66rem;
+  grid-template-columns: minmax(0, 1fr) 96px;
 }
 
 .menu-board__name {
@@ -363,8 +364,9 @@ button:disabled {
 }
 
 .menu-board__row .flip-display {
-  font-size: 0.82rem;
+  font-size: 0.72rem;
   font-weight: 700;
+  justify-self: end;
 }
 
 .overlay-card {

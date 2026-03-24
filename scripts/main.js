@@ -337,41 +337,50 @@
       ctx.beginPath();
       ctx.arc(x, y - 102, headRadius, 0, Math.PI * 2);
       ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(x, y - 98, headRadius - 7, headRadius - 9, 0, 0, Math.PI * 2);
+      ctx.fill();
       drawPreviewHair(ctx, profile, x, y, headRadius, "front");
       if (profile.cap === "barista") {
         ctx.fillStyle = "#f0a24d";
         ctx.beginPath();
-        ctx.roundRect(x - 54, y - 156, 108, 26, 10);
+        ctx.roundRect(x - 42, y - 156, 84, 24, 10);
         ctx.fill();
-        ctx.fillRect(x - 18, y - 132, 56, 10);
+        ctx.fillRect(x - 4, y - 136, 56, 8);
       } else if (profile.cap === "visor") {
         ctx.fillStyle = "#f0a24d";
         ctx.beginPath();
-        ctx.roundRect(x - 44, y - 148, 88, 18, 8);
+        ctx.roundRect(x - 40, y - 148, 80, 16, 8);
         ctx.fill();
-        ctx.fillRect(x - 12, y - 132, 48, 8);
+        ctx.beginPath();
+        ctx.moveTo(x + 10, y - 132);
+        ctx.lineTo(x + 54, y - 126);
+        ctx.lineTo(x + 10, y - 120);
+        ctx.closePath();
+        ctx.fill();
       } else if (profile.cap === "beanie") {
         ctx.fillStyle = profile.hair;
         ctx.beginPath();
-        ctx.roundRect(x - 46, y - 156, 92, 38, 14);
+        ctx.roundRect(x - 40, y - 154, 80, 34, 16);
         ctx.fill();
       } else if (profile.cap === "beret") {
         ctx.fillStyle = "#f0a24d";
         ctx.beginPath();
-        ctx.roundRect(x - 50, y - 154, 96, 22, 12);
+        ctx.ellipse(x - 10, y - 142, 48, 20, -0.2, 0, Math.PI * 2);
         ctx.fill();
-        ctx.fillRect(x - 8, y - 132, 12, 10);
       } else if (profile.cap === "snapback") {
         ctx.fillStyle = "#f0a24d";
         ctx.beginPath();
-        ctx.roundRect(x - 52, y - 154, 104, 26, 10);
+        ctx.roundRect(x - 44, y - 154, 88, 24, 10);
         ctx.fill();
-        ctx.fillRect(x + 8, y - 132, 34, 8);
+        ctx.fillRect(x + 14, y - 136, 34, 6);
       } else if (profile.cap === "headwrap") {
         ctx.fillStyle = "#f0a24d";
         ctx.beginPath();
-        ctx.roundRect(x - 52, y - 160, 104, 34, 16);
+        ctx.roundRect(x - 44, y - 156, 88, 28, 14);
         ctx.fill();
+        ctx.fillStyle = "#f7c27b";
+        ctx.fillRect(x - 8, y - 154, 16, 26);
       }
       drawPreviewAccessory(ctx, profile, x, y, headRadius);
       ctx.fillStyle = profile.eyeColor || "#3b2a1e";
@@ -410,8 +419,8 @@
         }
         ctx.beginPath();
         ctx.arc(x, y - 118, headRadius + 4, Math.PI, Math.PI * 2);
-        ctx.lineTo(x + headRadius - 4, y - 90);
-        ctx.lineTo(x - headRadius + 4, y - 90);
+        ctx.lineTo(x + headRadius - 6, y - 104);
+        ctx.lineTo(x - headRadius + 6, y - 104);
         ctx.closePath();
         ctx.fill();
       } else if (profile.hairStyle === "ponytail") {
@@ -424,8 +433,8 @@
         }
         ctx.beginPath();
         ctx.arc(x, y - 118, headRadius + 3, Math.PI, Math.PI * 2);
-        ctx.lineTo(x + headRadius - 3, y - 92);
-        ctx.lineTo(x - headRadius + 3, y - 92);
+        ctx.lineTo(x + headRadius - 6, y - 104);
+        ctx.lineTo(x - headRadius + 6, y - 104);
         ctx.closePath();
         ctx.fill();
       } else if (profile.hairStyle === "bun") {
@@ -440,8 +449,8 @@
         }
         ctx.beginPath();
         ctx.arc(x, y - 118, headRadius + 2, Math.PI, Math.PI * 2);
-        ctx.lineTo(x + headRadius - 2, y - 92);
-        ctx.lineTo(x - headRadius + 2, y - 92);
+        ctx.lineTo(x + headRadius - 5, y - 104);
+        ctx.lineTo(x - headRadius + 5, y - 104);
         ctx.closePath();
         ctx.fill();
       } else if (profile.hairStyle === "braid") {
@@ -454,8 +463,8 @@
         }
         ctx.beginPath();
         ctx.arc(x, y - 118, headRadius + 2, Math.PI, Math.PI * 2);
-        ctx.lineTo(x + headRadius - 2, y - 92);
-        ctx.lineTo(x - headRadius + 2, y - 92);
+        ctx.lineTo(x + headRadius - 5, y - 104);
+        ctx.lineTo(x - headRadius + 5, y - 104);
         ctx.closePath();
         ctx.fill();
       } else if (profile.hairStyle === "long") {
@@ -467,8 +476,8 @@
         }
         ctx.beginPath();
         ctx.arc(x, y - 118, headRadius + 4, Math.PI, Math.PI * 2);
-        ctx.lineTo(x + headRadius - 2, y - 92);
-        ctx.lineTo(x - headRadius + 2, y - 92);
+        ctx.lineTo(x + headRadius - 5, y - 106);
+        ctx.lineTo(x - headRadius + 5, y - 106);
         ctx.closePath();
         ctx.fill();
       } else if (profile.hairStyle === "fade") {
@@ -519,8 +528,8 @@
         }
         ctx.beginPath();
         ctx.arc(x, y - 118, headRadius + 3, Math.PI, Math.PI * 2);
-        ctx.lineTo(x + headRadius - 4, y - 92);
-        ctx.lineTo(x - headRadius + 4, y - 92);
+        ctx.lineTo(x + headRadius - 7, y - 104);
+        ctx.lineTo(x - headRadius + 7, y - 104);
         ctx.closePath();
         ctx.fill();
       } else {
