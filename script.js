@@ -31,6 +31,11 @@
     trashButton: document.getElementById("trashButton")
   };
 
+  const uiCache = {
+    actionSignature: "",
+    menuPrices: {}
+  };
+
   const TILE_W = 94;
   const TILE_H = 46;
   const GRID_W = 9;
@@ -137,14 +142,14 @@
   const recipeMap = Object.fromEntries(recipes.map((recipe) => [recipe.key, recipe]));
 
   const stations = [
-    { id: "cups", name: "Cup Wall", label: "CUP WALL", description: "Pick the right vessel before you start building the drink.", tile: { x: 1, y: 2 }, interactionTile: { x: 2, y: 2 }, height: 74, color: "#bc9164", accent: "#ffcf87", actions: ["cup_espresso", "cup_tulip", "cup_mug"] },
-    { id: "grinder", name: "Precision Grinder", label: "GRINDER", description: "Fresh grounds first. Espresso drinks start here.", tile: { x: 2, y: 4 }, interactionTile: { x: 2, y: 5 }, height: 82, color: "#6a7785", accent: "#4fd3db", actions: ["grind"] },
-    { id: "espresso_machine", name: "Aurora Espresso", label: "ESPRESSO", description: "Pull standard shots or shorter ristretto shots.", tile: { x: 4, y: 3 }, interactionTile: { x: 4, y: 4 }, height: 90, color: "#8c5d47", accent: "#ff8a3d", actions: ["espresso", "ristretto"] },
-    { id: "steam_wand", name: "Steam Wand", label: "STEAM WAND", description: "Steam milk, build airy foam, or groom microfoam.", tile: { x: 6, y: 3 }, interactionTile: { x: 6, y: 4 }, height: 88, color: "#6c808f", accent: "#b7eff5", actions: ["steam_milk", "foam_cap", "microfoam"] },
-    { id: "water_tap", name: "Water Tap", label: "WATER", description: "Only used for americanos. Water goes in before the shots.", tile: { x: 7, y: 2 }, interactionTile: { x: 7, y: 3 }, height: 74, color: "#4c6d86", accent: "#7fe1ff", actions: ["hot_water"] },
-    { id: "syrup_rail", name: "Syrup Rail", label: "SYRUP", description: "Mocha sauce for chocolate builds.", tile: { x: 7, y: 5 }, interactionTile: { x: 6, y: 5 }, height: 74, color: "#83575c", accent: "#ffc46d", actions: ["mocha_sauce"] },
-    { id: "topping_bar", name: "Topping Bar", label: "TOPPING", description: "Finish mochas with whipped cream.", tile: { x: 5, y: 6 }, interactionTile: { x: 5, y: 5 }, height: 68, color: "#68735f", accent: "#f0f4ff", actions: ["whip"] },
-    { id: "service_counter", name: "Service Counter", label: "COUNTER", description: "Serve the front customer when the drink is complete.", tile: { x: 4, y: 7 }, interactionTile: { x: 4, y: 6 }, height: 78, color: "#846851", accent: "#ffbc57", actions: ["serve"] }
+    { id: "cups", name: "Cup Wall", label: "CUP WALL", description: "Pick the right vessel before you start building the drink.", tile: { x: 1, y: 1 }, interactionTile: { x: 2, y: 1 }, height: 74, color: "#bc9164", accent: "#ffcf87", actions: ["cup_espresso", "cup_tulip", "cup_mug"] },
+    { id: "grinder", name: "Precision Grinder", label: "GRINDER", description: "Fresh grounds first. Espresso drinks start here.", tile: { x: 1, y: 3 }, interactionTile: { x: 2, y: 3 }, height: 82, color: "#6a7785", accent: "#4fd3db", actions: ["grind"] },
+    { id: "espresso_machine", name: "Aurora Espresso", label: "ESPRESSO", description: "Pull standard shots or shorter ristretto shots.", tile: { x: 3, y: 1 }, interactionTile: { x: 3, y: 2 }, height: 90, color: "#8c5d47", accent: "#ff8a3d", actions: ["espresso", "ristretto"] },
+    { id: "steam_wand", name: "Steam Wand", label: "STEAM WAND", description: "Steam milk, build airy foam, or groom microfoam.", tile: { x: 5, y: 1 }, interactionTile: { x: 5, y: 2 }, height: 88, color: "#6c808f", accent: "#b7eff5", actions: ["steam_milk", "foam_cap", "microfoam"] },
+    { id: "water_tap", name: "Water Tap", label: "WATER", description: "Only used for americanos. Water goes in before the shots.", tile: { x: 7, y: 1 }, interactionTile: { x: 7, y: 2 }, height: 74, color: "#4c6d86", accent: "#7fe1ff", actions: ["hot_water"] },
+    { id: "syrup_rail", name: "Syrup Rail", label: "SYRUP", description: "Mocha sauce for chocolate builds.", tile: { x: 7, y: 3 }, interactionTile: { x: 6, y: 3 }, height: 74, color: "#83575c", accent: "#ffc46d", actions: ["mocha_sauce"] },
+    { id: "topping_bar", name: "Topping Bar", label: "TOPPING", description: "Finish mochas with whipped cream.", tile: { x: 7, y: 5 }, interactionTile: { x: 6, y: 5 }, height: 68, color: "#68735f", accent: "#f0f4ff", actions: ["whip"] },
+    { id: "service_counter", name: "Service Counter", label: "COUNTER", description: "Serve the front customer when the drink is complete.", tile: { x: 4, y: 7 }, interactionTile: { x: 4, y: 6 }, height: 92, color: "#846851", accent: "#ffbc57", actions: ["serve"] }
   ];
 
   const customerNames = ["Mia", "Noah", "Avery", "Theo", "Lina", "Kai", "Nova", "Jules", "Ivy", "Zara", "Otis", "Ezra"];
@@ -302,8 +307,8 @@
     const queue = [
       { x: 4, y: 8 },
       { x: 3, y: 8 },
-      { x: 5, y: 8 },
-      { x: 2, y: 8 }
+      { x: 2, y: 8 },
+      { x: 1, y: 8 }
     ];
     return queue[index] || queue[queue.length - 1];
   }
@@ -364,24 +369,35 @@
     ui.trainingView.classList.toggle("is-active", state.view === "training");
 
     const station = getNearbyStation();
-    ui.actionList.innerHTML = "";
-    if (!station) {
-      ui.stationTitle.textContent = "Walk up to a machine";
-      ui.stationDescription.textContent = state.view === "training"
-        ? "Switch back to the game zone when you want to work the floor."
-        : "Machines expose different drink actions when you are in range.";
-    } else {
-      ui.stationTitle.textContent = station.name;
-      ui.stationDescription.textContent = station.description;
-      const actions = station.id === "service_counter" ? ["serve"] : station.actions;
-      actions.forEach((actionKey, index) => {
-        const button = document.createElement("button");
-        button.className = "action-button";
-        button.disabled = !state.started || state.paused || !!player.currentTask || (actionKey === "serve" && !state.customers.length);
-        button.innerHTML = `<strong>${index + 1}. ${actionMeta[actionKey].label}</strong><span>${actionMeta[actionKey].detail}</span>`;
-        button.addEventListener("click", () => startTask(actionKey));
-        ui.actionList.appendChild(button);
-      });
+    const actionSignature = [
+      station ? station.id : "none",
+      state.started ? 1 : 0,
+      state.paused ? 1 : 0,
+      player.currentTask ? 1 : 0,
+      state.customers.length,
+      state.view
+    ].join("|");
+    if (uiCache.actionSignature !== actionSignature) {
+      ui.actionList.innerHTML = "";
+      if (!station) {
+        ui.stationTitle.textContent = "Walk up to a machine";
+        ui.stationDescription.textContent = state.view === "training"
+          ? "Switch back to the game zone when you want to work the floor."
+          : "Machines expose different drink actions when you are in range.";
+      } else {
+        ui.stationTitle.textContent = station.name;
+        ui.stationDescription.textContent = station.description;
+        const actions = station.id === "service_counter" ? ["serve"] : station.actions;
+        actions.forEach((actionKey, index) => {
+          const button = document.createElement("button");
+          button.className = "action-button";
+          button.disabled = !state.started || state.paused || !!player.currentTask || (actionKey === "serve" && !state.customers.length);
+          button.innerHTML = `<strong>${index + 1}. ${actionMeta[actionKey].label}</strong><span>${actionMeta[actionKey].detail}</span>`;
+          button.addEventListener("click", () => startTask(actionKey));
+          ui.actionList.appendChild(button);
+        });
+      }
+      uiCache.actionSignature = actionSignature;
     }
 
     if (!state.activeCup) {
@@ -428,19 +444,10 @@
       });
     }
 
-    ui.recipeList.innerHTML = "";
     recipes.forEach((recipe) => {
-      const item = document.createElement("div");
-      item.className = "recipe-item";
-      item.innerHTML = `
-        <h3>${recipe.name}</h3>
-        <div class="order-meta">
-          <span>${recipe.cupName}</span>
-          <span>${formatEuro(getRecipePrice(recipe))}</span>
-        </div>
-        <p>${recipe.stationNote}</p>
-      `;
-      ui.recipeList.appendChild(item);
+      if (uiCache.menuPrices[recipe.key]) {
+        uiCache.menuPrices[recipe.key].textContent = formatEuro(getRecipePrice(recipe));
+      }
     });
   }
 
@@ -720,6 +727,34 @@
     });
   }
 
+  function buildSideMenuList() {
+    ui.recipeList.innerHTML = "";
+    uiCache.menuPrices = {};
+    recipes.forEach((recipe) => {
+      const item = document.createElement("div");
+      item.className = "recipe-item";
+      const priceEl = document.createElement("span");
+      priceEl.textContent = formatEuro(getRecipePrice(recipe));
+      uiCache.menuPrices[recipe.key] = priceEl;
+
+      const meta = document.createElement("div");
+      meta.className = "order-meta";
+      meta.innerHTML = `<span>${recipe.cupName}</span>`;
+      meta.appendChild(priceEl);
+
+      const title = document.createElement("h3");
+      title.textContent = recipe.name;
+
+      const note = document.createElement("p");
+      note.textContent = recipe.stationNote;
+
+      item.appendChild(title);
+      item.appendChild(meta);
+      item.appendChild(note);
+      ui.recipeList.appendChild(item);
+    });
+  }
+
   function buildSourceBoard() {
     const sources = [
       { label: "Coffee Association of Canada: Styles of Coffee", href: "https://coffeeassoc.com/coffee-101/styles-of-coffee/" },
@@ -843,10 +878,9 @@
     ctx.font = "bold 28px Gill Sans";
     ctx.fillText("VELVET POUR", signPos.x - 18, signPos.y - 48);
 
-    drawCafeTable(isoToScreen(1.25, 6.65), "#7b5a47");
-    drawCafeTable(isoToScreen(2.35, 7.25), "#6a4b39");
-    drawCafeTable(isoToScreen(6.85, 7.4), "#815f49");
-    drawCashCounter();
+    drawCafeTable(isoToScreen(0.95, 6.15), "#7b5a47");
+    drawCafeTable(isoToScreen(6.9, 6.75), "#815f49");
+    drawQueueMarkers();
     drawLiveMenuBoard();
   }
 
@@ -875,47 +909,62 @@
     });
   }
 
-  function drawCashCounter() {
-    const counter = isoToScreen(7.45, 6.9);
-    drawPrism(counter.x, counter.y, TILE_W * 0.86, TILE_H * 0.82, 84, "#5b4337");
-    ctx.fillStyle = "#f1f4fb";
-    ctx.fillRect(counter.x - 24, counter.y - 62, 48, 14);
-    ctx.fillStyle = "#151b21";
-    ctx.fillRect(counter.x - 18, counter.y - 54, 36, 24);
-    ctx.fillStyle = "#4fd3db";
-    ctx.fillRect(counter.x - 12, counter.y - 48, 24, 8);
-    ctx.fillStyle = "#ffbc57";
-    ctx.font = "bold 14px Trebuchet MS";
-    ctx.fillText("CASH", counter.x - 18, counter.y - 74);
+  function drawQueueMarkers() {
+    [
+      queueTile(0),
+      queueTile(1),
+      queueTile(2),
+      queueTile(3)
+    ].forEach((tile, index) => {
+      const p = isoToScreen(tile.x, tile.y);
+      ctx.strokeStyle = index === 0 ? "rgba(255,188,87,0.75)" : "rgba(255,255,255,0.18)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y + 12);
+      ctx.lineTo(p.x + 16, p.y + 20);
+      ctx.lineTo(p.x, p.y + 28);
+      ctx.lineTo(p.x - 16, p.y + 20);
+      ctx.closePath();
+      ctx.stroke();
+    });
   }
 
   function drawLiveMenuBoard() {
     const parts = getBoardDateParts();
-    const boardX = 72;
-    const boardY = 66;
-    const boardW = 330;
-    const boardH = 236;
+    const boardW = 420;
+    const boardH = 252;
+    const boardX = (canvas.clientWidth / 2) - (boardW / 2);
+    const boardY = 38;
 
-    roundedRect(boardX - 16, boardY - 16, boardW + 32, boardH + 32, 26, "#6b4b37");
-    ctx.fillStyle = "#120f0d";
+    for (let i = 0; i < 28; i += 1) {
+      ctx.fillStyle = i % 2 === 0 ? "#6d4c39" : "#5f412f";
+      ctx.fillRect(boardX - 26 + i * 17, boardY - 22, 10, boardH + 44);
+    }
+
+    roundedRect(boardX - 10, boardY - 10, boardW + 20, boardH + 20, 18, "#2b211b");
+    ctx.fillStyle = "#17120f";
     ctx.fillRect(boardX, boardY, boardW, boardH);
-    ctx.strokeStyle = "rgba(255,255,255,0.12)";
+    ctx.strokeStyle = "rgba(255,255,255,0.1)";
     ctx.lineWidth = 2;
     ctx.strokeRect(boardX, boardY, boardW, boardH);
 
-    ctx.fillStyle = "#f2f4f6";
+    ctx.fillStyle = "#eef2f5";
     ctx.font = "bold 18px Consolas";
-    ctx.fillText("HOT DRINKS", boardX + 18, boardY + 28);
-    ctx.fillText(parts.time, boardX + 232, boardY + 28);
-    ctx.font = "16px Consolas";
-    ctx.fillText(parts.day, boardX + 18, boardY + 52);
-    ctx.fillText(parts.date, boardX + 152, boardY + 52);
+    ctx.fillText("HOT DRINKS", boardX + 20, boardY + 30);
+    ctx.fillText(parts.time, boardX + 324, boardY + 30);
+    ctx.font = "15px Consolas";
+    ctx.fillText(parts.day, boardX + 20, boardY + 54);
+    ctx.fillText(parts.date, boardX + 224, boardY + 54);
 
     recipes.forEach((recipe, index) => {
-      const price = formatEuro(getRecipePrice(recipe)).replace("EUR ", "");
-      const lineY = boardY + 88 + index * 24;
-      const dots = ".".repeat(Math.max(4, 27 - recipe.boardLabel.length - price.length));
-      ctx.fillText(`${recipe.boardLabel} ${dots} ${price}`, boardX + 18, lineY);
+      const y = boardY + 90 + index * 24;
+      const price = getRecipePrice(recipe).toFixed(2);
+      ctx.fillStyle = "rgba(255,255,255,0.05)";
+      ctx.fillRect(boardX + 16, y - 14, boardW - 32, 20);
+      ctx.fillStyle = "#eef2f5";
+      ctx.fillText(recipe.boardLabel, boardX + 22, y);
+      ctx.fillText(".".repeat(Math.max(6, 25 - recipe.boardLabel.length)), boardX + 166, y);
+      ctx.fillText(`EUR ${price}`, boardX + 302, y);
     });
   }
 
@@ -953,39 +1002,107 @@
 
   function drawStation(station) {
     const p = isoToScreen(station.tile.x, station.tile.y);
-    drawPrism(p.x, p.y, TILE_W * 0.84, TILE_H * 0.8, station.height, station.color);
-    ctx.fillStyle = station.accent;
-    ctx.fillRect(p.x - 18, p.y - station.height + 18, 36, 10);
-    ctx.fillStyle = "rgba(255,255,255,0.17)";
-    ctx.fillRect(p.x - 12, p.y - station.height + 34, 24, 6);
+    drawPrism(p.x, p.y, TILE_W * 0.9, TILE_H * 0.84, station.height, station.color);
 
-    if (station.id === "espresso_machine") {
-      ctx.fillStyle = "#f2f7fc";
-      ctx.fillRect(p.x - 26, p.y - station.height + 48, 52, 14);
-      ctx.fillStyle = "#201912";
-      ctx.fillRect(p.x - 20, p.y - station.height + 60, 40, 7);
-    }
-
-    if (station.id === "steam_wand") {
-      ctx.strokeStyle = "#d8f6ff";
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      ctx.moveTo(p.x + 10, p.y - station.height + 18);
-      ctx.lineTo(p.x + 22, p.y - station.height - 18);
-      ctx.stroke();
-    }
+    ctx.fillStyle = shade(station.color, 14);
+    ctx.fillRect(p.x - 30, p.y - station.height + 16, 60, 14);
 
     if (station.id === "cups") {
+      ctx.fillStyle = "#f3efe7";
+      ctx.fillRect(p.x - 34, p.y - station.height + 28, 68, 8);
       ["#f0efe8", "#d1ecf0", "#f2d6a4"].forEach((color, index) => {
         ctx.fillStyle = color;
-        ctx.fillRect(p.x - 28 + index * 18, p.y - station.height + 12, 12, 24);
+        ctx.fillRect(p.x - 28 + index * 18, p.y - station.height + 4, 12, 24);
       });
     }
 
+    if (station.id === "grinder") {
+      ctx.fillStyle = "#222d35";
+      ctx.fillRect(p.x - 18, p.y - station.height + 12, 36, 44);
+      ctx.fillStyle = "#5d7482";
+      ctx.beginPath();
+      ctx.moveTo(p.x - 14, p.y - station.height + 12);
+      ctx.lineTo(p.x + 14, p.y - station.height + 12);
+      ctx.lineTo(p.x + 8, p.y - station.height - 18);
+      ctx.lineTo(p.x - 8, p.y - station.height - 18);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = "#a16e4e";
+      ctx.fillRect(p.x + 12, p.y - station.height + 34, 22, 5);
+    }
+
+    if (station.id === "espresso_machine") {
+      ctx.fillStyle = "#d8dee6";
+      ctx.fillRect(p.x - 34, p.y - station.height + 6, 68, 38);
+      ctx.fillStyle = "#1f2020";
+      ctx.fillRect(p.x - 30, p.y - station.height + 16, 60, 12);
+      ctx.fillStyle = "#ffbc57";
+      ctx.fillRect(p.x - 22, p.y - station.height + 32, 10, 6);
+      ctx.fillRect(p.x - 5, p.y - station.height + 32, 10, 6);
+      ctx.fillRect(p.x + 12, p.y - station.height + 32, 10, 6);
+      ctx.fillStyle = "#4b372b";
+      ctx.fillRect(p.x - 6, p.y - station.height + 44, 22, 5);
+    }
+
+    if (station.id === "steam_wand") {
+      ctx.fillStyle = "#c5d0d7";
+      ctx.fillRect(p.x - 22, p.y - station.height + 12, 44, 34);
+      ctx.strokeStyle = "#d8f6ff";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(p.x + 10, p.y - station.height + 12);
+      ctx.lineTo(p.x + 22, p.y - station.height - 26);
+      ctx.stroke();
+      ctx.fillStyle = "#90a6b3";
+      ctx.fillRect(p.x - 10, p.y - station.height + 46, 20, 16);
+    }
+
+    if (station.id === "water_tap") {
+      ctx.fillStyle = "#b8c9d8";
+      ctx.fillRect(p.x - 14, p.y - station.height + 6, 28, 48);
+      ctx.beginPath();
+      ctx.moveTo(p.x - 4, p.y - station.height + 10);
+      ctx.lineTo(p.x + 18, p.y - station.height + 10);
+      ctx.lineTo(p.x + 18, p.y - station.height + 22);
+      ctx.lineTo(p.x + 8, p.y - station.height + 22);
+      ctx.lineTo(p.x + 8, p.y - station.height + 38);
+      ctx.strokeStyle = "#d9f4ff";
+      ctx.lineWidth = 5;
+      ctx.stroke();
+      ctx.fillStyle = "#4fd3db";
+      ctx.fillRect(p.x - 8, p.y - station.height + 44, 16, 8);
+    }
+
+    if (station.id === "syrup_rail") {
+      ["#f29b68", "#f5d98f", "#df7285"].forEach((color, index) => {
+        ctx.fillStyle = color;
+        ctx.fillRect(p.x - 26 + index * 18, p.y - station.height + 8, 12, 34);
+        ctx.fillStyle = "#f1f7fa";
+        ctx.fillRect(p.x - 24 + index * 18, p.y - station.height + 4, 8, 6);
+      });
+    }
+
+    if (station.id === "topping_bar") {
+      ctx.fillStyle = "#eef2f7";
+      ctx.fillRect(p.x - 24, p.y - station.height + 10, 16, 34);
+      ctx.fillRect(p.x + 8, p.y - station.height + 10, 16, 34);
+      ctx.fillStyle = "#ffefe6";
+      ctx.beginPath();
+      ctx.arc(p.x - 16, p.y - station.height + 8, 8, Math.PI, 0);
+      ctx.arc(p.x + 16, p.y - station.height + 8, 8, Math.PI, 0);
+      ctx.fill();
+    }
+
     if (station.id === "service_counter") {
+      ctx.fillStyle = "#f1f4fb";
+      ctx.fillRect(p.x - 32, p.y - station.height + 8, 64, 16);
+      ctx.fillStyle = "#151b21";
+      ctx.fillRect(p.x - 18, p.y - station.height + 24, 36, 18);
+      ctx.fillStyle = "#4fd3db";
+      ctx.fillRect(p.x - 10, p.y - station.height + 29, 20, 6);
       ctx.fillStyle = "rgba(255, 188, 87, 0.18)";
       ctx.beginPath();
-      ctx.arc(p.x, p.y + 6, 46, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y + 6, 48, 0, Math.PI * 2);
       ctx.fill();
     }
 
@@ -1002,7 +1119,7 @@
       ctx.stroke();
     }
 
-    roundedRect(p.x - 58, p.y - station.height - 34, 116, 24, 10, "rgba(7,16,24,0.84)");
+    roundedRect(p.x - 60, p.y - station.height - 36, 120, 24, 10, "rgba(7,16,24,0.88)");
     ctx.fillStyle = "#f1f7fa";
     ctx.font = "bold 11px Trebuchet MS";
     ctx.fillText(station.label || station.name.toUpperCase(), p.x - 48, p.y - station.height - 18);
@@ -1418,6 +1535,7 @@
   window.addEventListener("resize", resizeCanvas);
 
   buildRecipeBoard();
+  buildSideMenuList();
   buildSourceBoard();
   resizeCanvas();
   syncUi();
