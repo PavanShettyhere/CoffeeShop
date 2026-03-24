@@ -436,8 +436,8 @@
         filter.frequency.value = 280;
         filter.Q.value = 0.8;
         gain.gain.setValueAtTime(0.0001, now);
-        gain.gain.exponentialRampToValueAtTime(0.18, now + 0.03);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.38);
+        gain.gain.exponentialRampToValueAtTime(0.26, now + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
         noise.buffer = buffer;
         noise.connect(filter).connect(gain);
         noise.start(now);
@@ -453,8 +453,8 @@
         filter.type = "highpass";
         filter.frequency.value = 520;
         gain.gain.setValueAtTime(0.0001, now);
-        gain.gain.exponentialRampToValueAtTime(0.16, now + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.32);
+        gain.gain.exponentialRampToValueAtTime(0.24, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.36);
         noise.buffer = buffer;
         noise.connect(filter).connect(gain);
         noise.start(now);
@@ -495,8 +495,8 @@
         const osc = audio.context.createOscillator();
         osc.type = "triangle";
         gain.gain.setValueAtTime(0.0001, now);
-        gain.gain.exponentialRampToValueAtTime(0.1, now + 0.03);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+        gain.gain.exponentialRampToValueAtTime(0.16, now + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
         osc.connect(gain);
         osc.frequency.setValueAtTime(520, now);
         osc.frequency.exponentialRampToValueAtTime(760, now + 0.16);
@@ -513,19 +513,39 @@
         filter.type = "bandpass";
         filter.frequency.value = 860;
         gain.gain.setValueAtTime(0.0001, now);
-        gain.gain.exponentialRampToValueAtTime(0.13, now + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+        gain.gain.exponentialRampToValueAtTime(0.18, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
         noise.buffer = buffer;
         noise.connect(filter).connect(gain);
         noise.start(now);
         noise.stop(now + 0.24);
         return;
       }
+      if (kind === "espresso") {
+        const pulse = audio.context.createOscillator();
+        const tail = audio.context.createOscillator();
+        pulse.type = "square";
+        tail.type = "triangle";
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.18, now + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
+        pulse.connect(gain);
+        tail.connect(gain);
+        pulse.frequency.setValueAtTime(180, now);
+        pulse.frequency.exponentialRampToValueAtTime(140, now + 0.18);
+        tail.frequency.setValueAtTime(420, now + 0.04);
+        tail.frequency.exponentialRampToValueAtTime(240, now + 0.26);
+        pulse.start(now);
+        tail.start(now + 0.03);
+        pulse.stop(now + 0.22);
+        tail.stop(now + 0.28);
+        return;
+      }
       const osc = audio.context.createOscillator();
       osc.type = { serve: "triangle", arrive: "sine", error: "sawtooth", leave: "square", trash: "square", cup: "triangle", start: "triangle", stop: "triangle", happy: "sine", angry: "square" }[kind] || "square";
       const cfg = {
         brew: { f: 180, e: 120, d: 0.2, v: 0.14 },
-        cup: { f: 640, e: 760, d: 0.12, v: 0.12 },
+        cup: { f: 760, e: 980, d: 0.16, v: 0.18 },
         serve: { f: 720, e: 1080, d: 0.28, v: 0.16 },
         arrive: { f: 420, e: 520, d: 0.2, v: 0.1 },
         error: { f: 220, e: 180, d: 0.22, v: 0.12 },
@@ -576,6 +596,7 @@
       } else if (state.activeCup) {
         state.activeCup.steps.push(actionKey);
         if (actionKey === "grind") sfx("grind");
+        else if (actionKey === "espresso" || actionKey === "ristretto") sfx("espresso");
         else if (actionKey === "hot_water") sfx("water");
         else if (actionKey === "mocha_sauce") sfx("syrup");
         else if (actionKey === "whip") sfx("whip");
