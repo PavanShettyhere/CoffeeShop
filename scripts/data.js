@@ -117,12 +117,40 @@
   const customerNames = ["Mia", "Noah", "Theo", "Avery", "Lina", "Kai", "Nova", "Ezra", "Jules", "Ivy", "Zara"];
 
   const customerLooks = [
-    { skin: "#f1c7a7", shirt: "#ff8b64", pants: "#355f74" },
-    { skin: "#cc9377", shirt: "#67d9df", pants: "#264356" },
-    { skin: "#a86f56", shirt: "#f3d36c", pants: "#5c3853" },
-    { skin: "#efd0bf", shirt: "#91e0a0", pants: "#524d77" },
-    { skin: "#8c5f4d", shirt: "#ee6c8d", pants: "#335149" }
+    { skin: "#f1c7a7", shirt: "#ff8b64", pants: "#355f74", hair: "#362117", accent: "#ffd4c3", apron: "#f7f0ea", cap: "none", gender: "woman" },
+    { skin: "#cc9377", shirt: "#67d9df", pants: "#264356", hair: "#1a2430", accent: "#d4fbff", apron: "#eff3f8", cap: "beanie", gender: "man" },
+    { skin: "#a86f56", shirt: "#f3d36c", pants: "#5c3853", hair: "#2a180f", accent: "#fff4c4", apron: "#fff8e8", cap: "none", gender: "man" },
+    { skin: "#efd0bf", shirt: "#91e0a0", pants: "#524d77", hair: "#6f5038", accent: "#efffe8", apron: "#f2fbf2", cap: "visor", gender: "woman" },
+    { skin: "#8c5f4d", shirt: "#ee6c8d", pants: "#335149", hair: "#20120c", accent: "#ffd6df", apron: "#fff0f3", cap: "none", gender: "woman" }
   ];
+
+  const avatarOptions = {
+    defaultProfile: {
+      gender: "woman",
+      skin: "#d5a07e",
+      shirt: "#f0a24d",
+      pants: "#24384b",
+      hair: "#3b2418",
+      apron: "#f1f4fb",
+      cap: "barista"
+    },
+    genders: [
+      { value: "woman", label: "Woman" },
+      { value: "man", label: "Man" },
+      { value: "neutral", label: "Neutral" }
+    ],
+    skinTones: ["#f1d2bd", "#e4b693", "#d5a07e", "#b57c61", "#8a5d49"],
+    shirts: ["#f0a24d", "#67d9df", "#91e0a0", "#ef7d57", "#c38fff"],
+    pants: ["#24384b", "#355f74", "#5c3853", "#1f2a37", "#3f4d2b"],
+    hair: ["#2a180f", "#3b2418", "#5d4431", "#1b2531", "#6a2b1d"],
+    aprons: ["#f1f4fb", "#fff0db", "#e8f7ff", "#eef7e8", "#ffe9ef"],
+    caps: [
+      { value: "barista", label: "Barista Cap" },
+      { value: "visor", label: "Visor" },
+      { value: "beanie", label: "Beanie" },
+      { value: "none", label: "No Cap" }
+    ]
+  };
 
   const sources = [
     { label: "Coffee Association of Canada: Styles of Coffee", href: "https://coffeeassoc.com/coffee-101/styles-of-coffee/" },
@@ -140,6 +168,7 @@
     queueTiles,
     customerNames,
     customerLooks,
-    sources
+    sources,
+    avatarOptions
   };
 }(window));

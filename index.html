@@ -31,6 +31,7 @@
               <div class="more-menu__actions">
                 <button id="gameTabButton" class="tab-button is-active" type="button">Game Zone</button>
                 <button id="trainingTabButton" class="tab-button" type="button">Coffee Trainee Zone</button>
+                <button id="avatarTabButton" class="tab-button" type="button">Character Studio</button>
               </div>
             </div>
 
@@ -126,6 +127,61 @@
             <div class="eyebrow">Recipe Notes</div>
             <p>Recipes are modeled from current coffee references and official Starbucks At Home espresso drink procedures.</p>
             <div id="sourceList" class="source-list"></div>
+          </div>
+        </section>
+
+        <section id="avatarView" class="view-panel panel avatar-panel">
+          <div class="avatar-layout">
+            <div class="glass-card avatar-preview-card">
+              <div class="eyebrow">Character Studio</div>
+              <h2>Build your barista</h2>
+              <p>Choose the worker’s look here. The same avatar will be used inside the coffee shop.</p>
+              <canvas id="avatarCanvas" width="420" height="420" aria-label="Avatar preview"></canvas>
+            </div>
+
+            <form id="avatarForm" class="glass-card avatar-form" autocomplete="off">
+              <div class="avatar-form__grid">
+                <label class="field">
+                  <span>Gender</span>
+                  <select id="avatarGender"></select>
+                </label>
+
+                <label class="field">
+                  <span>Cap</span>
+                  <select id="avatarCap"></select>
+                </label>
+              </div>
+
+              <div class="swatch-group">
+                <span>Skin tone</span>
+                <div id="skinSwatches" class="swatch-row"></div>
+              </div>
+
+              <div class="swatch-group">
+                <span>Shirt</span>
+                <div id="shirtSwatches" class="swatch-row"></div>
+              </div>
+
+              <div class="swatch-group">
+                <span>Pants</span>
+                <div id="pantsSwatches" class="swatch-row"></div>
+              </div>
+
+              <div class="swatch-group">
+                <span>Hair</span>
+                <div id="hairSwatches" class="swatch-row"></div>
+              </div>
+
+              <div class="swatch-group">
+                <span>Apron</span>
+                <div id="apronSwatches" class="swatch-row"></div>
+              </div>
+
+              <div class="avatar-form__actions">
+                <button id="avatarApplyButton" class="primary-button" type="submit">Use This Character</button>
+                <button id="avatarResetButton" class="secondary-button" type="button">Reset Default</button>
+              </div>
+            </form>
           </div>
         </section>
       </main>
