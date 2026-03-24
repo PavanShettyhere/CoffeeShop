@@ -18,9 +18,15 @@
     cupProgress: document.getElementById("cupProgress"),
     ordersList: document.getElementById("ordersList"),
     recipeList: document.getElementById("recipeList"),
+    traineeGrid: document.getElementById("traineeGrid"),
     sourceList: document.getElementById("sourceList"),
     overlay: document.getElementById("overlayCard"),
     startButton: document.getElementById("startButton"),
+    stopButton: document.getElementById("stopButton"),
+    gameTabButton: document.getElementById("gameTabButton"),
+    trainingTabButton: document.getElementById("trainingTabButton"),
+    gameView: document.getElementById("gameView"),
+    trainingView: document.getElementById("trainingView"),
     soundButton: document.getElementById("soundButton"),
     trashButton: document.getElementById("trashButton")
   };
@@ -48,12 +54,84 @@
   };
 
   const recipes = [
-    { key: "espresso", name: "Espresso", price: 6, patience: 88, stationNote: "A focused shot with crema in a small cup.", tools: "Cup wall, grinder, espresso machine", sequence: ["cup_espresso", "grind", "espresso"] },
-    { key: "americano", name: "Caffe Americano", price: 8, patience: 92, stationNote: "Hot water first, then two espresso shots.", tools: "Cup wall, water tap, grinder, espresso machine", sequence: ["cup_mug", "hot_water", "grind", "espresso", "espresso"] },
-    { key: "cappuccino", name: "Classic Cappuccino", price: 10, patience: 98, stationNote: "Espresso with milk and a generous foam cap.", tools: "Cup wall, grinder, espresso machine, steam wand", sequence: ["cup_tulip", "grind", "espresso", "steam_milk", "foam_cap"] },
-    { key: "latte", name: "Caffe Latte", price: 11, patience: 104, stationNote: "Espresso finished with steamed milk and a light foam layer.", tools: "Cup wall, grinder, espresso machine, steam wand", sequence: ["cup_tulip", "grind", "espresso", "steam_milk"] },
-    { key: "flat_white", name: "Flat White", price: 12, patience: 108, stationNote: "Two ristretto shots and velvety microfoam.", tools: "Cup wall, grinder, espresso machine, steam wand", sequence: ["cup_tulip", "grind", "ristretto", "ristretto", "microfoam"] },
-    { key: "mocha", name: "Caffe Mocha", price: 13, patience: 112, stationNote: "Mocha sauce, espresso, milk, then whipped cream.", tools: "Cup wall, syrup rail, grinder, espresso machine, steam wand, topping bar", sequence: ["cup_mug", "mocha_sauce", "grind", "espresso", "steam_milk", "whip"] }
+    {
+      key: "espresso",
+      name: "Espresso",
+      boardLabel: "ESPRESSO",
+      basePrice: 2.5,
+      patience: 88,
+      cupName: "Espresso cup",
+      stationNote: "A focused shot with crema in a small cup.",
+      tools: "Cup wall, grinder, espresso machine",
+      trainerTip: "Keep it compact and intense. This is the base for several other drinks.",
+      steps: ["Grab espresso cup", "Grind beans", "Pull espresso shot"],
+      sequence: ["cup_espresso", "grind", "espresso"]
+    },
+    {
+      key: "americano",
+      name: "Caffe Americano",
+      boardLabel: "AMERICANO",
+      basePrice: 3.5,
+      patience: 92,
+      cupName: "House mug",
+      stationNote: "Hot water first, then two espresso shots.",
+      tools: "Cup wall, water tap, grinder, espresso machine",
+      trainerTip: "Water goes in before the espresso shots to preserve the crema feel of the pour.",
+      steps: ["Grab house mug", "Add hot water", "Grind beans", "Pull espresso shot", "Pull second espresso shot"],
+      sequence: ["cup_mug", "hot_water", "grind", "espresso", "espresso"]
+    },
+    {
+      key: "cappuccino",
+      name: "Classic Cappuccino",
+      boardLabel: "CAPPUCCINO",
+      basePrice: 3.75,
+      patience: 98,
+      cupName: "Tulip cup",
+      stationNote: "Espresso with milk and a generous foam cap.",
+      tools: "Cup wall, grinder, espresso machine, steam wand",
+      trainerTip: "The foam finish should feel taller and airier than a latte.",
+      steps: ["Grab tulip cup", "Grind beans", "Pull espresso shot", "Steam milk", "Top with foam cap"],
+      sequence: ["cup_tulip", "grind", "espresso", "steam_milk", "foam_cap"]
+    },
+    {
+      key: "latte",
+      name: "Caffe Latte",
+      boardLabel: "LATTE",
+      basePrice: 4.5,
+      patience: 104,
+      cupName: "Tulip cup",
+      stationNote: "Espresso finished with steamed milk and a light foam layer.",
+      tools: "Cup wall, grinder, espresso machine, steam wand",
+      trainerTip: "This drink leans silkier than cappuccino and should finish smoother.",
+      steps: ["Grab tulip cup", "Grind beans", "Pull espresso shot", "Steam milk"],
+      sequence: ["cup_tulip", "grind", "espresso", "steam_milk"]
+    },
+    {
+      key: "flat_white",
+      name: "Flat White",
+      boardLabel: "FLAT WHITE",
+      basePrice: 4.2,
+      patience: 108,
+      cupName: "Tulip cup",
+      stationNote: "Two ristretto shots and velvety microfoam.",
+      tools: "Cup wall, grinder, espresso machine, steam wand",
+      trainerTip: "Shorter ristretto shots plus polished microfoam keep it dense and glossy.",
+      steps: ["Grab tulip cup", "Grind beans", "Pull ristretto shot", "Pull second ristretto shot", "Pour microfoam"],
+      sequence: ["cup_tulip", "grind", "ristretto", "ristretto", "microfoam"]
+    },
+    {
+      key: "mocha",
+      name: "Caffe Mocha",
+      boardLabel: "MOCHA",
+      basePrice: 4.9,
+      patience: 112,
+      cupName: "House mug",
+      stationNote: "Mocha sauce, espresso, milk, then whipped cream.",
+      tools: "Cup wall, syrup rail, grinder, espresso machine, steam wand, topping bar",
+      trainerTip: "Build the chocolate base first so the espresso integrates into it cleanly.",
+      steps: ["Grab house mug", "Add mocha sauce", "Grind beans", "Pull espresso shot", "Steam milk", "Top whipped cream"],
+      sequence: ["cup_mug", "mocha_sauce", "grind", "espresso", "steam_milk", "whip"]
+    }
   ];
 
   const recipeMap = Object.fromEntries(recipes.map((recipe) => [recipe.key, recipe]));
@@ -81,6 +159,8 @@
   const state = {
     started: false,
     gameOver: false,
+    paused: false,
+    view: "game",
     score: 0,
     coins: 0,
     reputation: 100,
@@ -199,6 +279,25 @@
     return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   }
 
+  function formatEuro(value) {
+    return `EUR ${value.toFixed(2)}`;
+  }
+
+  function getRecipePrice(recipe, timeMs = Date.now()) {
+    const drift = Math.sin((timeMs / 1000) * 0.025 + recipe.basePrice) * 0.18;
+    const pulse = Math.cos((timeMs / 1000) * 0.011 + recipe.sequence.length) * 0.1;
+    return Math.max(2, recipe.basePrice + drift + pulse);
+  }
+
+  function getBoardDateParts() {
+    const now = new Date();
+    return {
+      day: now.toLocaleDateString("en-GB", { weekday: "long" }).toUpperCase(),
+      date: now.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase(),
+      time: now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
+    };
+  }
+
   function queueTile(index) {
     const queue = [
       { x: 4, y: 8 },
@@ -217,6 +316,7 @@
       id,
       name,
       recipeKey: recipe.key,
+      offerPrice: getRecipePrice(recipe),
       patience: recipe.patience,
       patienceMax: recipe.patience,
       colors
@@ -257,12 +357,19 @@
     ui.combo.textContent = `x${state.combo.toFixed(2).replace(/\.00$/, "")}`;
     ui.rank.textContent = rankForScore(state.score);
     ui.soundButton.textContent = `Sound: ${audio && audio.enabled ? "On" : "Off"}`;
+    ui.stopButton.disabled = !state.started && !state.paused;
+    ui.gameTabButton.classList.toggle("is-active", state.view === "game");
+    ui.trainingTabButton.classList.toggle("is-active", state.view === "training");
+    ui.gameView.classList.toggle("is-active", state.view === "game");
+    ui.trainingView.classList.toggle("is-active", state.view === "training");
 
     const station = getNearbyStation();
     ui.actionList.innerHTML = "";
     if (!station) {
       ui.stationTitle.textContent = "Walk up to a machine";
-      ui.stationDescription.textContent = "Machines expose different drink actions when you are in range.";
+      ui.stationDescription.textContent = state.view === "training"
+        ? "Switch back to the game zone when you want to work the floor."
+        : "Machines expose different drink actions when you are in range.";
     } else {
       ui.stationTitle.textContent = station.name;
       ui.stationDescription.textContent = station.description;
@@ -270,7 +377,7 @@
       actions.forEach((actionKey, index) => {
         const button = document.createElement("button");
         button.className = "action-button";
-        button.disabled = !state.started || !!player.currentTask;
+        button.disabled = !state.started || state.paused || !!player.currentTask || (actionKey === "serve" && !state.customers.length);
         button.innerHTML = `<strong>${index + 1}. ${actionMeta[actionKey].label}</strong><span>${actionMeta[actionKey].detail}</span>`;
         button.addEventListener("click", () => startTask(actionKey));
         ui.actionList.appendChild(button);
@@ -309,7 +416,7 @@
           <h3>${index === 0 ? "Front" : "Queue"}: ${customer.name}</h3>
           <div class="order-meta">
             <span>${recipe.name}</span>
-            <span>${recipe.price} coins</span>
+            <span>${formatEuro(customer.offerPrice)}</span>
           </div>
           <div class="order-meta">
             <span>${recipe.stationNote}</span>
@@ -320,6 +427,21 @@
         ui.ordersList.appendChild(card);
       });
     }
+
+    ui.recipeList.innerHTML = "";
+    recipes.forEach((recipe) => {
+      const item = document.createElement("div");
+      item.className = "recipe-item";
+      item.innerHTML = `
+        <h3>${recipe.name}</h3>
+        <div class="order-meta">
+          <span>${recipe.cupName}</span>
+          <span>${formatEuro(getRecipePrice(recipe))}</span>
+        </div>
+        <p>${recipe.stationNote}</p>
+      `;
+      ui.recipeList.appendChild(item);
+    });
   }
 
   function startTask(actionKey) {
