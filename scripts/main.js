@@ -23,6 +23,7 @@
       stop: document.getElementById("stopButton"),
       sound: document.getElementById("soundButton"),
       trash: document.getElementById("trashButton"),
+      moreMenu: document.querySelector(".more-menu"),
       gameTab: document.getElementById("gameTabButton"),
       trainingTab: document.getElementById("trainingTabButton"),
       gameView: document.getElementById("gameView"),
@@ -48,37 +49,72 @@
     const cache = { actionSig: "", cupSig: "", orderSig: "", boardRows: {}, menuRows: {} };
     const game = Game.createGame({ canvas: ui.canvas, onStateChange: renderState });
 
+    function normalizeGlyph(symbol) {
+      return symbol === " " ? "\u00a0" : symbol;
+    }
+
+    function buildGlyph(symbol) {
+      const glyph = document.createElement("span");
+      glyph.className = "flip-glyph";
+      glyph.dataset.symbol = symbol;
+      glyph.innerHTML = `
+        <span class="flip-glyph__static flip-glyph__static--top"><span>${normalizeGlyph(symbol)}</span></span>
+        <span class="flip-glyph__static flip-glyph__static--bottom"><span>${normalizeGlyph(symbol)}</span></span>
+        <span class="flip-glyph__flap flip-glyph__flap--top"><span>${normalizeGlyph(symbol)}</span></span>
+        <span class="flip-glyph__flap flip-glyph__flap--bottom"><span>${normalizeGlyph(symbol)}</span></span>
+      `;
+      return glyph;
+    }
+
+    function paintGlyph(glyph, currentSymbol, nextSymbol) {
+      glyph.dataset.symbol = currentSymbol;
+      glyph.setAttribute("data-symbol", currentSymbol);
+      glyph.querySelector(".flip-glyph__static--top span").textContent = normalizeGlyph(currentSymbol);
+      glyph.querySelector(".flip-glyph__static--bottom span").textContent = normalizeGlyph(currentSymbol);
+      glyph.querySelector(".flip-glyph__flap--top span").textContent = normalizeGlyph(currentSymbol);
+      glyph.querySelector(".flip-glyph__flap--bottom span").textContent = normalizeGlyph(nextSymbol);
+    }
+
+    function animateGlyph(glyph, nextSymbol) {
+      const currentSymbol = glyph.dataset.symbol || " ";
+      if (currentSymbol === nextSymbol) return;
+      if (glyph._flipTimer) window.clearTimeout(glyph._flipTimer);
+      paintGlyph(glyph, currentSymbol, nextSymbol);
+      glyph.classList.remove("is-animating");
+      void glyph.offsetWidth;
+      glyph.classList.add("is-animating");
+      glyph._flipTimer = window.setTimeout(() => {
+        glyph.classList.remove("is-animating");
+        paintGlyph(glyph, nextSymbol, nextSymbol);
+      }, 390);
+    }
+
     function setFlipText(node, value) {
-      const nextText = String(value);
       if (!node) return;
-      if (!node.classList.contains("flip-card")) node.classList.add("flip-card");
-      const current = node.querySelector(".flip-card__face.is-current");
-      if (!current) {
+      const chars = Array.from(String(value));
+      const glyphs = Array.from(node.children);
+      node.classList.add("flip-display");
+      if (glyphs.length !== chars.length) {
         node.textContent = "";
-        const face = document.createElement("span");
-        face.className = "flip-card__face is-current";
-        face.textContent = nextText;
-        node.appendChild(face);
-        node.dataset.value = nextText;
+        chars.forEach((symbol) => {
+          const glyph = buildGlyph(symbol);
+          paintGlyph(glyph, symbol, symbol);
+          node.appendChild(glyph);
+        });
         return;
       }
-      if (node.dataset.value === nextText && !node.classList.contains("is-animating")) return;
-      node.dataset.value = nextText;
-      const staleNext = node.querySelector(".flip-card__face.is-next");
-      if (staleNext) staleNext.remove();
-      const next = document.createElement("span");
-      next.className = "flip-card__face is-next";
-      next.textContent = nextText;
-      node.appendChild(next);
-      window.requestAnimationFrame(() => {
-        node.classList.add("is-animating");
+      chars.forEach((symbol, index) => {
+        animateGlyph(glyphs[index], symbol);
       });
-      next.addEventListener("animationend", function finish() {
-        if (current.parentNode === node) current.remove();
-        next.classList.remove("is-next");
-        next.classList.add("is-current");
-        node.classList.remove("is-animating");
-      }, { once: true });
+    }
+
+    function setText(node, value) {
+      if (!node) return;
+      if (node.textContent !== value) node.textContent = value;
+    }
+
+    function closeMoreMenu() {
+      if (ui.moreMenu) ui.moreMenu.open = false;
     }
 
     function setView(view) {
@@ -86,6 +122,7 @@
       ui.trainingTab.classList.toggle("is-active", view === "training");
       ui.gameView.classList.toggle("is-active", view === "game");
       ui.trainingView.classList.toggle("is-active", view === "training");
+      closeMoreMenu();
       game.setView(view);
     }
 
@@ -145,7 +182,7 @@
           <h3>${recipe.name}</h3>
           <div class="order-meta">
             <span>${recipe.cupName}</span>
-            <span data-price class="flip-value"></span>
+            <span data-price></span>
           </div>
           <p>${recipe.note}</p>
         `;
@@ -162,7 +199,7 @@
       Data.recipes.forEach((recipe) => {
         const price = game.formatEuro(game.getLivePrice(recipe, Date.now()));
         if (cache.boardRows[recipe.key]) setFlipText(cache.boardRows[recipe.key], price);
-        if (cache.menuRows[recipe.key]) setFlipText(cache.menuRows[recipe.key], price);
+        if (cache.menuRows[recipe.key]) setText(cache.menuRows[recipe.key], price);
       });
     }
 

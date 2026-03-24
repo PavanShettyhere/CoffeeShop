@@ -241,15 +241,25 @@
         : Data.recipes[Math.floor(Math.random() * Data.recipes.length)];
       const look = Data.customerLooks[Math.floor(Math.random() * Data.customerLooks.length)];
       const name = Data.customerNames[Math.floor(Math.random() * Data.customerNames.length)];
+      const patienceScale = Math.max(1.04, 1.34 - state.customersServed * 0.015);
+      const patienceBuffer = Math.max(8, 20 - state.customersServed * 0.45);
       return {
         id: `customer-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
         recipeKey: recipe.key,
         offerPrice: getLivePrice(recipe, Date.now()),
-        patience: recipe.patience,
-        patienceMax: recipe.patience,
+        patience: recipe.patience * patienceScale + patienceBuffer,
+        patienceMax: recipe.patience * patienceScale + patienceBuffer,
         name,
         look
       };
+    }
+
+    function paceFactor() {
+      return Math.min(1.08, 0.54 + state.customersServed * 0.042);
+    }
+
+    function nextSpawnCooldown() {
+      return Math.max(2.35, 5.2 - Math.min(state.customersServed * 0.11, 2.1) + Math.random() * 1.25);
     }
 
     function initAudio() {
@@ -461,7 +471,7 @@
       state.customersServed = 0;
       state.combo = 1;
       state.shiftRemaining = state.shiftLength;
-      state.spawnCooldown = 2;
+      state.spawnCooldown = 2.6;
       state.activeCup = null;
       state.customers = [];
       state.particles = [];
@@ -730,10 +740,14 @@
         state.spawnCooldown -= dt;
         if (state.spawnCooldown <= 0 && state.customers.length < 4) {
           state.customers.push(customerFactory());
-          state.spawnCooldown = Math.max(1.6, 4 - Math.min(state.customersServed * 0.1, 1.9) + Math.random() * 1.5);
+          state.spawnCooldown = nextSpawnCooldown();
           sfx("arrive");
         }
-        state.customers.forEach((customer, index) => { customer.patience -= dt * (index === 0 ? 3.5 : 2.4); });
+        const pace = paceFactor();
+        state.customers.forEach((customer, index) => {
+          const drainRate = (index === 0 ? 1.85 : 1.18) * pace;
+          customer.patience -= dt * drainRate;
+        });
         while (state.customers[0] && state.customers[0].patience <= 0) {
           const unhappy = state.customers.shift();
           state.combo = 1;

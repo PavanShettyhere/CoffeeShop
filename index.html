@@ -16,17 +16,30 @@
       </div>
 
       <div class="topbar-controls">
-        <div class="view-switch">
-          <button id="gameTabButton" class="tab-button is-active" type="button">Game Zone</button>
-          <button id="trainingTabButton" class="tab-button" type="button">Coffee Trainee Zone</button>
-        </div>
-
         <div class="button-row">
           <button id="startButton" class="primary-button" type="button">Start Shift</button>
           <button id="stopButton" class="secondary-button" type="button">Stop Shift</button>
           <button id="soundButton" class="secondary-button" type="button">Sound: On</button>
           <button id="trashButton" class="secondary-button" type="button">Trash Cup</button>
         </div>
+
+        <details class="more-menu">
+          <summary>More</summary>
+          <div class="more-menu__panel">
+            <div class="more-menu__section">
+              <div class="eyebrow">Views</div>
+              <div class="more-menu__actions">
+                <button id="gameTabButton" class="tab-button is-active" type="button">Game Zone</button>
+                <button id="trainingTabButton" class="tab-button" type="button">Coffee Trainee Zone</button>
+              </div>
+            </div>
+
+            <div class="more-menu__section">
+              <div class="eyebrow">Controls</div>
+              <p>Move with click, <code>WASD</code>, or arrow keys. Use station actions from the left rail or press <code>1</code>, <code>2</code>, <code>3</code>. Press <code>Space</code> for the first available action.</p>
+            </div>
+          </div>
+        </details>
       </div>
 
       <div class="stat-grid">
@@ -52,11 +65,6 @@
                 <p class="overlay-tip">Start Shift unlocks audio and begins the customer rush.</p>
               </div>
 
-              <div class="controls-card glass-card">
-                <div class="eyebrow">Controls</div>
-                <p>Move with click, <code>WASD</code>, or arrow keys. Use machine actions from the side panel or press <code>1</code>, <code>2</code>, <code>3</code>.</p>
-              </div>
-
               <section class="glass-card station-card">
                 <div class="eyebrow">Nearby Station</div>
                 <h2 id="stationTitle">Walk up to a machine</h2>
@@ -73,19 +81,20 @@
             </aside>
 
             <div class="stage-stack">
-              <div class="menu-board" id="menuBoard">
-                <div class="menu-board__header">
-                  <span>HOT DRINKS</span>
-                  <span id="boardClock" class="flip-value">00:00</span>
-                </div>
-                <div class="menu-board__meta">
-                  <span id="boardDay" class="flip-value">MONDAY</span>
-                  <span id="boardDate" class="flip-value">24 MAR 2026</span>
-                </div>
-                <div id="boardRows" class="menu-board__rows"></div>
-              </div>
-
               <div class="stage-shell panel">
+                <div class="stage-shell__board">
+                  <div class="menu-board" id="menuBoard">
+                    <div class="menu-board__header">
+                      <span>HOT DRINKS</span>
+                      <span id="boardClock" class="flip-value"></span>
+                    </div>
+                    <div class="menu-board__meta">
+                      <span id="boardDay" class="flip-text"></span>
+                      <span id="boardDate" class="flip-text"></span>
+                    </div>
+                    <div id="boardRows" class="menu-board__rows"></div>
+                  </div>
+                </div>
                 <canvas id="gameCanvas" width="1440" height="960" aria-label="Velvet Pour game world"></canvas>
               </div>
             </div>
