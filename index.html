@@ -43,31 +43,35 @@
     <div class="content-grid">
       <main class="main-column">
         <section id="gameView" class="view-panel is-active">
-          <div class="stage-shell panel">
-            <div class="menu-board" id="menuBoard">
-              <div class="menu-board__header">
-                <span>HOT DRINKS</span>
-                <span id="boardClock">00:00</span>
+          <div class="stage-stack">
+            <div class="stage-topbar">
+              <div class="stage-overlay overlay-card" id="overlayCard">
+                <div class="eyebrow">Shift Briefing</div>
+                <h2>Open The Cafe</h2>
+                <p>Move through the room, build the requested drinks on the correct machines, and serve them at the front counter.</p>
+                <p class="overlay-tip">Start Shift unlocks audio and begins the customer rush.</p>
               </div>
-              <div class="menu-board__meta">
-                <span id="boardDay">MONDAY</span>
-                <span id="boardDate">24 MAR 2026</span>
+
+              <div class="menu-board" id="menuBoard">
+                <div class="menu-board__header">
+                  <span>HOT DRINKS</span>
+                  <span id="boardClock">00:00</span>
+                </div>
+                <div class="menu-board__meta">
+                  <span id="boardDay">MONDAY</span>
+                  <span id="boardDate">24 MAR 2026</span>
+                </div>
+                <div id="boardRows" class="menu-board__rows"></div>
               </div>
-              <div id="boardRows" class="menu-board__rows"></div>
+
+              <div class="controls-card glass-card">
+                <div class="eyebrow">Controls</div>
+                <p>Move with click, <code>WASD</code>, or arrow keys. Use machine actions with the buttons on the right or press <code>1</code>, <code>2</code>, <code>3</code>.</p>
+              </div>
             </div>
 
-            <div class="stage-overlay overlay-card" id="overlayCard">
-              <div class="eyebrow">Shift Briefing</div>
-              <h2>Open The Cafe</h2>
-              <p>Move through the room, build the requested drinks on the correct machines, and serve them at the front counter.</p>
-              <p class="overlay-tip">Start Shift unlocks audio and begins the customer rush.</p>
-            </div>
-
-            <canvas id="gameCanvas" width="1440" height="960" aria-label="Velvet Pour game world"></canvas>
-
-            <div class="controls-card glass-card">
-              <div class="eyebrow">Controls</div>
-              <p>Move with click, <code>WASD</code>, or arrow keys. Use machine actions with the buttons on the right or press <code>1</code>, <code>2</code>, <code>3</code>.</p>
+            <div class="stage-shell panel">
+              <canvas id="gameCanvas" width="1440" height="960" aria-label="Velvet Pour game world"></canvas>
             </div>
           </div>
         </section>

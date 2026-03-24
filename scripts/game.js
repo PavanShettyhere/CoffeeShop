@@ -259,30 +259,60 @@
       }
       const context = new (window.AudioContext || window.webkitAudioContext)();
       const master = context.createGain();
-      master.gain.value = 0.42;
+      master.gain.value = 0.34;
       master.connect(context.destination);
+      const lowpass = context.createBiquadFilter();
+      lowpass.type = "lowpass";
+      lowpass.frequency.value = 1600;
+      lowpass.Q.value = 0.6;
+      lowpass.connect(master);
+
+      function playSoftPad(now, notes) {
+        const chordGain = context.createGain();
+        chordGain.gain.setValueAtTime(0.0001, now);
+        chordGain.gain.exponentialRampToValueAtTime(0.03, now + 0.45);
+        chordGain.gain.exponentialRampToValueAtTime(0.0001, now + 3.4);
+        chordGain.connect(lowpass);
+
+        notes.forEach((frequency, index) => {
+          const osc = context.createOscillator();
+          const voice = context.createGain();
+          osc.type = index === 0 ? "sine" : "triangle";
+          osc.frequency.setValueAtTime(frequency, now);
+          voice.gain.value = index === 0 ? 0.9 : 0.55;
+          osc.connect(voice);
+          voice.connect(chordGain);
+          osc.start(now);
+          osc.stop(now + 3.5);
+        });
+
+        const shimmer = context.createOscillator();
+        const shimmerGain = context.createGain();
+        shimmer.type = "sine";
+        shimmer.frequency.setValueAtTime(notes[notes.length - 1] * 2, now + 1.1);
+        shimmerGain.gain.setValueAtTime(0.0001, now);
+        shimmerGain.gain.exponentialRampToValueAtTime(0.009, now + 1.1);
+        shimmerGain.gain.exponentialRampToValueAtTime(0.0001, now + 2.4);
+        shimmer.connect(shimmerGain);
+        shimmerGain.connect(lowpass);
+        shimmer.start(now + 0.9);
+        shimmer.stop(now + 2.45);
+      }
+
+      const padChords = [
+        [196, 246.94, 293.66],
+        [174.61, 220, 261.63],
+        [164.81, 220, 246.94],
+        [196, 233.08, 293.66]
+      ];
+      let padIndex = 0;
+      playSoftPad(context.currentTime, padChords[padIndex]);
       const ambienceTimer = window.setInterval(() => {
         if (!audio || !audio.enabled) return;
-        const now = context.currentTime;
-        const a = context.createOscillator();
-        const b = context.createOscillator();
-        const gain = context.createGain();
-        a.type = "sine";
-        b.type = "triangle";
-        a.frequency.setValueAtTime(196, now);
-        b.frequency.setValueAtTime(392, now);
-        gain.gain.setValueAtTime(0.0001, now);
-        gain.gain.exponentialRampToValueAtTime(0.045, now + 0.08);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
-        a.connect(gain);
-        b.connect(gain);
-        gain.connect(master);
-        a.start(now);
-        b.start(now);
-        a.stop(now + 1.22);
-        b.stop(now + 1.22);
-      }, 4200);
-      audio = { context, master, ambienceTimer, enabled: true };
+        padIndex = (padIndex + 1) % padChords.length;
+        playSoftPad(context.currentTime, padChords[padIndex]);
+      }, 3200);
+      audio = { context, master, lowpass, ambienceTimer, enabled: true };
       state.soundEnabled = true;
     }
 

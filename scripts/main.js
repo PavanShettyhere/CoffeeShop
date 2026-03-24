@@ -63,7 +63,7 @@
         card.innerHTML = `
           <div class="eyebrow">${recipe.boardLabel}</div>
           <h3>${recipe.name}</h3>
-          <div class="training-meta">${recipe.cupName} • ${game.formatEuro(recipe.basePrice)}</div>
+          <div class="training-meta">${recipe.cupName} | ${game.formatEuro(recipe.basePrice)}</div>
           <p>${recipe.note}</p>
           <p>${recipe.trainerTip}</p>
           <p><strong>Tools:</strong> ${recipe.tools}</p>
