@@ -132,7 +132,8 @@
       pants: "#24384b",
       hair: "#3b2418",
       apron: "#f1f4fb",
-      cap: "barista"
+      cap: "barista",
+      lowerWear: "tapered"
     },
     genders: [
       { value: "woman", label: "Woman" },
@@ -148,8 +149,33 @@
       { value: "barista", label: "Barista Cap" },
       { value: "visor", label: "Visor" },
       { value: "beanie", label: "Beanie" },
+      { value: "beret", label: "Beret" },
+      { value: "snapback", label: "Snapback" },
+      { value: "headwrap", label: "Headwrap" },
       { value: "none", label: "No Cap" }
-    ]
+    ],
+    lowerWearByGender: {
+      woman: [
+        { value: "tapered", label: "Tapered Pants" },
+        { value: "wide", label: "Wide Pants" },
+        { value: "skirt", label: "Cafe Skirt" },
+        { value: "pleated", label: "Pleated Skirt" },
+        { value: "culottes", label: "Culottes" }
+      ],
+      man: [
+        { value: "tapered", label: "Tapered Pants" },
+        { value: "straight", label: "Straight Pants" },
+        { value: "joggers", label: "Joggers" },
+        { value: "apron_pants", label: "Apron Pants" }
+      ],
+      neutral: [
+        { value: "tapered", label: "Tapered Pants" },
+        { value: "straight", label: "Straight Pants" },
+        { value: "wide", label: "Wide Pants" },
+        { value: "culottes", label: "Culottes" },
+        { value: "apron_pants", label: "Apron Pants" }
+      ]
+    }
   };
 
   const sources = [

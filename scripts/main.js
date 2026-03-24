@@ -40,6 +40,7 @@
       cupProgress: document.getElementById("cupProgress"),
       ordersList: document.getElementById("ordersList"),
       recipeList: document.getElementById("recipeList"),
+      boardTitle: document.getElementById("boardTitle"),
       boardClock: document.getElementById("boardClock"),
       boardDay: document.getElementById("boardDay"),
       boardDate: document.getElementById("boardDate"),
@@ -51,6 +52,7 @@
       avatarForm: document.getElementById("avatarForm"),
       avatarGender: document.getElementById("avatarGender"),
       avatarCap: document.getElementById("avatarCap"),
+      avatarLowerWear: document.getElementById("avatarLowerWear"),
       avatarApply: document.getElementById("avatarApplyButton"),
       avatarReset: document.getElementById("avatarResetButton"),
       skinSwatches: document.getElementById("skinSwatches"),
@@ -60,7 +62,7 @@
       apronSwatches: document.getElementById("apronSwatches")
     };
 
-    const cache = { actionSig: "", cupSig: "", orderSig: "", boardRows: {}, menuRows: {} };
+    const cache = { actionSig: "", cupSig: "", orderSig: "", boardSlots: [], menuRows: {} };
     const game = Game.createGame({ canvas: ui.canvas, onStateChange: renderState });
     let avatarDraft = null;
 
@@ -176,22 +178,20 @@
     }
 
     function buildBoard() {
-      Data.recipes.forEach((recipe) => {
+      for (let index = 0; index < Data.recipes.length; index += 1) {
         const row = document.createElement("div");
         row.className = "menu-board__row";
         row.innerHTML = `
-          <div class="menu-board__name">
-            <span>${recipe.boardLabel}</span>
-            <span class="menu-board__dots">....................................</span>
-          </div>
+          <span data-name class="flip-value"></span>
           <span data-price class="flip-value"></span>
         `;
         ui.boardRows.appendChild(row);
-        cache.boardRows[recipe.key] = {
+        cache.boardSlots.push({
           row,
+          nameNode: row.querySelector("[data-name]"),
           priceNode: row.querySelector("[data-price]")
-        };
-      });
+        });
+      }
     }
 
     function buildSidebarMenu() {
@@ -250,12 +250,58 @@
       ctx.beginPath();
       ctx.ellipse(x, y + 70, 80, 24, 0, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = profile.pants;
-      ctx.fillRect(x - 42, y + 18, 26, 88);
-      ctx.fillRect(x + 16, y + 18, 26, 88);
-      ctx.fillStyle = "#161a1f";
-      ctx.fillRect(x - 44, y + 102, 30, 10);
-      ctx.fillRect(x + 14, y + 102, 30, 10);
+      if (profile.lowerWear === "skirt" || profile.lowerWear === "pleated") {
+        ctx.fillStyle = profile.pants;
+        ctx.beginPath();
+        ctx.moveTo(x - 44, y + 8);
+        ctx.lineTo(x + 44, y + 8);
+        ctx.lineTo(x + 62, y + 78);
+        ctx.lineTo(x - 62, y + 78);
+        ctx.closePath();
+        ctx.fill();
+        if (profile.lowerWear === "pleated") {
+          ctx.strokeStyle = "rgba(255,255,255,0.22)";
+          ctx.lineWidth = 3;
+          for (let i = -32; i <= 32; i += 16) {
+            ctx.beginPath();
+            ctx.moveTo(x + i, y + 16);
+            ctx.lineTo(x + i + 6, y + 70);
+            ctx.stroke();
+          }
+        }
+        ctx.fillStyle = shadePreview(profile.pants, -20);
+        ctx.fillRect(x - 26, y + 62, 14, 54);
+        ctx.fillRect(x + 12, y + 62, 14, 54);
+        ctx.fillStyle = "#161a1f";
+        ctx.fillRect(x - 28, y + 112, 18, 10);
+        ctx.fillRect(x + 10, y + 112, 18, 10);
+      } else if (profile.lowerWear === "wide" || profile.lowerWear === "culottes") {
+        ctx.fillStyle = shadePreview(profile.pants, -8);
+        ctx.fillRect(x - 50, y + 12, 30, 104);
+        ctx.fillRect(x + 20, y + 12, 30, 104);
+        ctx.fillStyle = "#161a1f";
+        ctx.fillRect(x - 52, y + 112, 34, 10);
+        ctx.fillRect(x + 18, y + 112, 34, 10);
+      } else if (profile.lowerWear === "joggers" || profile.lowerWear === "apron_pants") {
+        ctx.fillStyle = shadePreview(profile.pants, -18);
+        ctx.beginPath();
+        ctx.roundRect(x - 42, y + 14, 24, 98, 12);
+        ctx.roundRect(x + 18, y + 14, 24, 98, 12);
+        ctx.fill();
+        ctx.fillStyle = shadePreview(profile.pants, 12);
+        ctx.fillRect(x - 42, y + 8, 24, 8);
+        ctx.fillRect(x + 18, y + 8, 24, 8);
+        ctx.fillStyle = "#161a1f";
+        ctx.fillRect(x - 44, y + 108, 28, 10);
+        ctx.fillRect(x + 16, y + 108, 28, 10);
+      } else {
+        ctx.fillStyle = profile.pants;
+        ctx.fillRect(x - 42, y + 18, 26, 88);
+        ctx.fillRect(x + 16, y + 18, 26, 88);
+        ctx.fillStyle = "#161a1f";
+        ctx.fillRect(x - 44, y + 102, 30, 10);
+        ctx.fillRect(x + 14, y + 102, 30, 10);
+      }
       ctx.fillStyle = profile.shirt;
       ctx.beginPath();
       ctx.roundRect(x - 62, y - 48, 124, 92, 24);
@@ -296,12 +342,37 @@
         ctx.beginPath();
         ctx.roundRect(x - 46, y - 156, 92, 38, 14);
         ctx.fill();
+      } else if (profile.cap === "beret") {
+        ctx.fillStyle = "#f0a24d";
+        ctx.beginPath();
+        ctx.roundRect(x - 50, y - 154, 96, 22, 12);
+        ctx.fill();
+        ctx.fillRect(x - 8, y - 132, 12, 10);
+      } else if (profile.cap === "snapback") {
+        ctx.fillStyle = "#f0a24d";
+        ctx.beginPath();
+        ctx.roundRect(x - 52, y - 154, 104, 26, 10);
+        ctx.fill();
+        ctx.fillRect(x + 8, y - 132, 34, 8);
+      } else if (profile.cap === "headwrap") {
+        ctx.fillStyle = "#f0a24d";
+        ctx.beginPath();
+        ctx.roundRect(x - 52, y - 160, 104, 34, 16);
+        ctx.fill();
       }
       ctx.fillStyle = "#1c1714";
       ctx.fillRect(x - 18, y - 100, 10, 4);
       ctx.fillRect(x + 8, y - 100, 10, 4);
       ctx.fillStyle = "#cf7b7b";
       ctx.fillRect(x - 10, y - 76, 20, 4);
+    }
+
+    function shadePreview(hex, amount) {
+      const raw = parseInt(hex.replace("#", ""), 16);
+      const r = Math.max(0, Math.min(255, (raw >> 16) + amount));
+      const g = Math.max(0, Math.min(255, ((raw >> 8) & 255) + amount));
+      const b = Math.max(0, Math.min(255, (raw & 255) + amount));
+      return `rgb(${r}, ${g}, ${b})`;
     }
 
     function markSelectedSwatch(container, value) {
@@ -330,12 +401,26 @@
       avatarDraft = { ...profile };
       ui.avatarGender.value = avatarDraft.gender;
       ui.avatarCap.value = avatarDraft.cap;
+      populateLowerWearOptions(avatarDraft.gender, avatarDraft.lowerWear);
       markSelectedSwatch(ui.skinSwatches, avatarDraft.skin);
       markSelectedSwatch(ui.shirtSwatches, avatarDraft.shirt);
       markSelectedSwatch(ui.pantsSwatches, avatarDraft.pants);
       markSelectedSwatch(ui.hairSwatches, avatarDraft.hair);
       markSelectedSwatch(ui.apronSwatches, avatarDraft.apron);
       renderAvatarPreview(avatarDraft);
+    }
+
+    function populateLowerWearOptions(gender, selectedValue) {
+      const options = Data.avatarOptions.lowerWearByGender[gender] || Data.avatarOptions.lowerWearByGender.neutral;
+      ui.avatarLowerWear.innerHTML = "";
+      options.forEach((entry) => {
+        const option = document.createElement("option");
+        option.value = entry.value;
+        option.textContent = entry.label;
+        ui.avatarLowerWear.appendChild(option);
+      });
+      ui.avatarLowerWear.value = options.some((entry) => entry.value === selectedValue) ? selectedValue : options[0].value;
+      avatarDraft.lowerWear = ui.avatarLowerWear.value;
     }
 
     function buildAvatarStudio() {
@@ -359,10 +444,15 @@
 
       ui.avatarGender.addEventListener("change", () => {
         avatarDraft.gender = ui.avatarGender.value;
+        populateLowerWearOptions(avatarDraft.gender, avatarDraft.lowerWear);
         renderAvatarPreview(avatarDraft);
       });
       ui.avatarCap.addEventListener("change", () => {
         avatarDraft.cap = ui.avatarCap.value;
+        renderAvatarPreview(avatarDraft);
+      });
+      ui.avatarLowerWear.addEventListener("change", () => {
+        avatarDraft.lowerWear = ui.avatarLowerWear.value;
         renderAvatarPreview(avatarDraft);
       });
 
@@ -380,9 +470,10 @@
 
     function updateBoard() {
       const parts = game.getDateParts();
+      setFlipText(ui.boardTitle, "HOT DRINKS");
       setFlipText(ui.boardClock, parts.time);
-      setText(ui.boardDay, parts.day);
-      setText(ui.boardDate, parts.date);
+      setFlipText(ui.boardDay, parts.day);
+      setFlipText(ui.boardDate, parts.date);
       const now = Date.now();
       const priced = Data.recipes.map((recipe) => {
         const livePrice = game.getLivePrice(recipe, now);
@@ -393,12 +484,12 @@
         };
       }).sort((a, b) => b.livePrice - a.livePrice);
 
-      priced.forEach((entry) => {
-        const boardRow = cache.boardRows[entry.recipe.key];
+      priced.forEach((entry, index) => {
+        const boardRow = cache.boardSlots[index];
         const menuRow = cache.menuRows[entry.recipe.key];
         if (boardRow) {
+          setFlipText(boardRow.nameNode, entry.recipe.boardLabel);
           setFlipText(boardRow.priceNode, entry.priceLabel);
-          ui.boardRows.appendChild(boardRow.row);
         }
         if (menuRow) {
           setText(menuRow.priceNode, entry.priceLabel);
@@ -537,7 +628,7 @@
     game.setPlayerProfile(savedProfile);
     updateBoard();
     renderState(game.getSnapshot());
-    window.setInterval(updateBoard, 1000);
+    window.setInterval(updateBoard, 60000);
     global.__VelvetPourApp = { game, setView };
   });
 }(window));

@@ -43,7 +43,8 @@
       pants: profile.pants,
       hair: profile.hair,
       apron: profile.apron,
-      cap: profile.cap
+      cap: profile.cap,
+      lowerWear: profile.lowerWear || "tapered"
     };
   }
 
@@ -700,12 +701,56 @@
       ctx.ellipse(x, y + 18, 24, 9, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      ctx.fillStyle = shade(look.pants, -22);
-      ctx.fillRect(x - 14, y - 14, 10, 30);
-      ctx.fillRect(x + 4, y - 14, 10, 30);
-      ctx.fillStyle = "#171a1f";
-      ctx.fillRect(x - 15, y + 13, 12, 4);
-      ctx.fillRect(x + 3, y + 13, 12, 4);
+      if (look.lowerWear === "skirt" || look.lowerWear === "pleated") {
+        ctx.fillStyle = look.pants;
+        ctx.beginPath();
+        ctx.moveTo(x - 18, y - 18);
+        ctx.lineTo(x + 18, y - 18);
+        ctx.lineTo(x + 28, y + 14);
+        ctx.lineTo(x - 28, y + 14);
+        ctx.closePath();
+        ctx.fill();
+        if (look.lowerWear === "pleated") {
+          ctx.strokeStyle = shade(look.pants, 22);
+          ctx.lineWidth = 2;
+          for (let i = -16; i <= 16; i += 8) {
+            ctx.beginPath();
+            ctx.moveTo(x + i, y - 12);
+            ctx.lineTo(x + i + 3, y + 12);
+            ctx.stroke();
+          }
+        }
+        ctx.fillStyle = shade(look.pants, -22);
+        ctx.fillRect(x - 12, y + 6, 8, 20);
+        ctx.fillRect(x + 4, y + 6, 8, 20);
+        ctx.fillStyle = "#171a1f";
+        ctx.fillRect(x - 13, y + 23, 10, 4);
+        ctx.fillRect(x + 3, y + 23, 10, 4);
+      } else if (look.lowerWear === "wide" || look.lowerWear === "culottes") {
+        ctx.fillStyle = shade(look.pants, -8);
+        ctx.fillRect(x - 18, y - 16, 14, 34);
+        ctx.fillRect(x + 4, y - 16, 14, 34);
+        ctx.fillStyle = "#171a1f";
+        ctx.fillRect(x - 19, y + 15, 16, 4);
+        ctx.fillRect(x + 3, y + 15, 16, 4);
+      } else if (look.lowerWear === "joggers" || look.lowerWear === "apron_pants") {
+        ctx.fillStyle = shade(look.pants, -18);
+        roundedRect(x - 16, y - 16, 12, 32, 6, shade(look.pants, -18));
+        roundedRect(x + 4, y - 16, 12, 32, 6, shade(look.pants, -18));
+        ctx.fillStyle = shade(look.pants, 16);
+        ctx.fillRect(x - 16, y - 18, 12, 4);
+        ctx.fillRect(x + 4, y - 18, 12, 4);
+        ctx.fillStyle = "#171a1f";
+        ctx.fillRect(x - 17, y + 13, 14, 4);
+        ctx.fillRect(x + 3, y + 13, 14, 4);
+      } else {
+        ctx.fillStyle = shade(look.pants, -22);
+        ctx.fillRect(x - 14, y - 14, 10, 30);
+        ctx.fillRect(x + 4, y - 14, 10, 30);
+        ctx.fillStyle = "#171a1f";
+        ctx.fillRect(x - 15, y + 13, 12, 4);
+        ctx.fillRect(x + 3, y + 13, 12, 4);
+      }
 
       ctx.fillStyle = shirt;
       roundedRect(x - 20, y - 52, 40, 34, 10, shirt);
@@ -739,6 +784,14 @@
         ctx.fillRect(x - 4, y - 78, 16, 3);
       } else if (look.cap === "beanie") {
         roundedRect(x - 16, y - 88, 32, 16, 8, shade(hair, 16));
+      } else if (look.cap === "beret") {
+        roundedRect(x - 18, y - 88, 34, 12, 8, playerMode ? "#f0a24d" : shade(shirt, 20));
+        ctx.fillRect(x - 4, y - 78, 8, 4);
+      } else if (look.cap === "snapback") {
+        roundedRect(x - 18, y - 88, 36, 14, 6, playerMode ? "#f0a24d" : shade(shirt, 16));
+        ctx.fillRect(x + 2, y - 76, 16, 4);
+      } else if (look.cap === "headwrap") {
+        roundedRect(x - 18, y - 90, 36, 18, 9, playerMode ? "#f0a24d" : shade(shirt, 14));
       }
 
       ctx.fillStyle = "#1d1714";
