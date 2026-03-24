@@ -12,8 +12,8 @@
       <div class="eyebrow">Boutique Barista Sim</div>
       <h1>Velvet Pour</h1>
       <p class="lead">
-        Run a premium pixel coffee shop. Move like a Habbo-style room game, craft drinks at real cafe stations,
-        and keep your queue moving before patience runs out.
+        Run a premium pixel coffee shop. Move through an isometric cafe, learn each recipe in the trainee zone,
+        and survive the live order rush.
       </p>
 
       <div class="stat-grid">
@@ -37,35 +37,42 @@
 
       <div class="button-row">
         <button id="startButton" class="primary-button">Start Shift</button>
+        <button id="stopButton" class="secondary-button">Stop Shift</button>
         <button id="soundButton" class="secondary-button">Sound: On</button>
         <button id="trashButton" class="secondary-button">Trash Cup</button>
       </div>
 
       <div class="quick-guide glass-card">
-        <h2>How To Play</h2>
+        <h2>Floor Flow</h2>
         <ul>
-          <li>Click a floor tile or station to move. `WASD` or arrow keys also work.</li>
-          <li>Stand near a machine and use the action buttons or number keys to perform the next step.</li>
-          <li>Build the drink in the right order, then take it to the service counter.</li>
-          <li>Serve perfect drinks fast to build combo, coins, and reputation.</li>
+          <li>Move with click, `WASD`, or arrow keys.</li>
+          <li>Use the correct machine order for each coffee.</li>
+          <li>Check the live euro menu board inside the shop.</li>
+          <li>Open the trainee zone to study every recipe step.</li>
         </ul>
       </div>
     </aside>
 
     <main class="game-column">
       <section class="hero-bar glass-card">
-        <div>
+        <div class="hero-copy">
           <div class="eyebrow">Modern Isometric Cafe</div>
-          <h2>Craft rush-hour coffee with station-based recipes</h2>
+          <h2>Craft the queue, learn the menu, own the room</h2>
         </div>
-        <div class="ticker">
-          <div><span>Customers served</span><strong id="servedValue">0</strong></div>
-          <div><span>Combo</span><strong id="comboValue">x1</strong></div>
-          <div><span>Day rank</span><strong id="rankValue">Rising Roaster</strong></div>
+        <div class="hero-actions">
+          <div class="view-switch">
+            <button id="gameTabButton" class="tab-button is-active">Game Zone</button>
+            <button id="trainingTabButton" class="tab-button">Coffee Trainee Zone</button>
+          </div>
+          <div class="ticker">
+            <div><span>Customers served</span><strong id="servedValue">0</strong></div>
+            <div><span>Combo</span><strong id="comboValue">x1</strong></div>
+            <div><span>Day rank</span><strong id="rankValue">Rising Roaster</strong></div>
+          </div>
         </div>
       </section>
 
-      <section class="game-stage panel">
+      <section id="gameView" class="panel view-panel is-active">
         <div class="canvas-wrap">
           <canvas id="gameCanvas" width="1400" height="900" aria-label="Velvet Pour game world"></canvas>
           <div class="overlay-card" id="overlayCard">
@@ -76,6 +83,29 @@
               and the right procedure to serve them before their patience runs out.
             </p>
             <p class="overlay-tip">Start Shift unlocks audio and begins the order rush.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="trainingView" class="panel view-panel training-view">
+        <div class="training-layout">
+          <div class="training-hero glass-card">
+            <div class="eyebrow">Coffee Trainee Zone</div>
+            <h2>Study every machine, cup, and pour sequence before the rush starts</h2>
+            <p>
+              Learn the order of operations for each drink, the tools it needs, and what makes it different from the others.
+              This page is meant to feel like the staff training wall in the back of the cafe.
+            </p>
+          </div>
+
+          <div class="training-grid" id="traineeGrid"></div>
+
+          <div class="glass-card training-sources">
+            <div class="eyebrow">Recipe Notes</div>
+            <p id="sourceSummary">
+              Recipes are modeled from current coffee references and official Starbucks At Home espresso drink procedures.
+            </p>
+            <div id="sourceList" class="source-list"></div>
           </div>
         </div>
       </section>
@@ -102,16 +132,8 @@
       </section>
 
       <section class="glass-card recipe-card">
-        <div class="eyebrow">Menu & Procedures</div>
-        <div id="recipeList" class="recipe-list"></div>
-      </section>
-
-      <section class="glass-card source-card">
-        <div class="eyebrow">Recipe Notes</div>
-        <p id="sourceSummary">
-          Recipes are modeled from current coffee references and official Starbucks at Home espresso drink procedures.
-        </p>
-        <div id="sourceList" class="source-list"></div>
+        <div class="eyebrow">Coffee Menu</div>
+        <div id="recipeList" class="recipe-list compact-list"></div>
       </section>
     </aside>
   </div>
