@@ -359,11 +359,11 @@ button:disabled {
 }
 
 .menu-board__header .flip-display {
-  font-size: 0.82rem;
+  font-size: 0.92rem;
 }
 
 .menu-board__row .flip-display {
-  font-size: 0.74rem;
+  font-size: 0.82rem;
   font-weight: 700;
 }
 
@@ -426,7 +426,7 @@ button:disabled {
   gap: 12px;
   min-height: 0;
   padding: 14px;
-  overflow: auto;
+  overflow: hidden;
   max-height: none;
   align-self: start;
   height: 100%;
@@ -496,15 +496,25 @@ button:disabled {
 .orders-list {
   max-height: none;
   overflow: auto;
+  min-height: 0;
 }
 
 .menu-card {
   min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 .recipe-list {
-  max-height: none;
+  min-height: 0;
+  max-height: 100%;
   overflow: auto;
+  padding-right: 6px;
+}
+
+.queue-card {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 .queue-card,
@@ -527,9 +537,10 @@ button:disabled {
 
 .flip-glyph {
   position: relative;
-  width: 0.92em;
-  height: 1.38em;
+  width: 0.98em;
+  height: 1.44em;
   perspective: 900px;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.36));
 }
 
 .flip-glyph[data-symbol=" "] {
@@ -549,8 +560,8 @@ button:disabled {
   overflow: hidden;
   background: linear-gradient(180deg, #2a231d, #16110d);
   color: #fffdf8;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .flip-glyph__static span,
@@ -563,6 +574,8 @@ button:disabled {
   justify-content: center;
   font: inherit;
   line-height: 1;
+  font-weight: 800;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
 }
 
 .flip-glyph__static--top,
@@ -755,6 +768,11 @@ button:disabled {
   color: var(--text);
 }
 
+.field select:focus {
+  outline: 2px solid rgba(255, 188, 87, 0.34);
+  outline-offset: 2px;
+}
+
 .swatch-group {
   display: grid;
   gap: 10px;
@@ -779,6 +797,20 @@ button:disabled {
 .swatch.is-selected {
   border-color: #fff6dd;
   box-shadow: 0 0 0 3px rgba(255, 188, 87, 0.26);
+}
+
+.swatch-row::-webkit-scrollbar,
+.recipe-list::-webkit-scrollbar,
+.orders-list::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.swatch-row::-webkit-scrollbar-thumb,
+.recipe-list::-webkit-scrollbar-thumb,
+.orders-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
 }
 
 .avatar-form__actions {

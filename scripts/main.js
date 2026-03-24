@@ -53,12 +53,15 @@
       avatarGender: document.getElementById("avatarGender"),
       avatarCap: document.getElementById("avatarCap"),
       avatarLowerWear: document.getElementById("avatarLowerWear"),
+      avatarHairStyle: document.getElementById("avatarHairStyle"),
+      avatarAccessory: document.getElementById("avatarAccessory"),
       avatarApply: document.getElementById("avatarApplyButton"),
       avatarReset: document.getElementById("avatarResetButton"),
       skinSwatches: document.getElementById("skinSwatches"),
       shirtSwatches: document.getElementById("shirtSwatches"),
       pantsSwatches: document.getElementById("pantsSwatches"),
       hairSwatches: document.getElementById("hairSwatches"),
+      eyeSwatches: document.getElementById("eyeSwatches"),
       apronSwatches: document.getElementById("apronSwatches")
     };
 
@@ -232,6 +235,14 @@
       const ctx = ui.avatarCanvas.getContext("2d");
       const width = ui.avatarCanvas.width;
       const height = ui.avatarCanvas.height;
+      const isWoman = profile.gender === "woman";
+      const isMan = profile.gender === "man";
+      const torsoWidth = isMan ? 134 : (isWoman ? 116 : 124);
+      const torsoHeight = isWoman ? 96 : 90;
+      const headRadius = isWoman ? 48 : 52;
+      const hipSpread = isWoman ? 48 : 36;
+      const shoulderSpread = isMan ? 72 : 60;
+      const armOffset = isMan ? 78 : 70;
       ctx.clearRect(0, 0, width, height);
       const grad = ctx.createLinearGradient(0, 0, 0, height);
       grad.addColorStop(0, "#223b4f");
@@ -304,7 +315,7 @@
       }
       ctx.fillStyle = profile.shirt;
       ctx.beginPath();
-      ctx.roundRect(x - 62, y - 48, 124, 92, 24);
+      ctx.roundRect(x - torsoWidth / 2, y - 48, torsoWidth, torsoHeight, 24);
       ctx.fill();
       ctx.fillStyle = profile.apron;
       ctx.beginPath();
@@ -312,19 +323,13 @@
       ctx.fill();
       ctx.fillStyle = profile.skin;
       ctx.beginPath();
-      ctx.roundRect(x - 74, y - 34, 12, 52, 6);
-      ctx.roundRect(x + 62, y - 34, 12, 52, 6);
+      ctx.roundRect(x - armOffset, y - 34, 12, 52, 6);
+      ctx.roundRect(x + armOffset - 12, y - 34, 12, 52, 6);
       ctx.fill();
       ctx.beginPath();
-      ctx.arc(x, y - 102, 50, 0, Math.PI * 2);
+      ctx.arc(x, y - 102, headRadius, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = profile.hair;
-      ctx.beginPath();
-      ctx.arc(x, y - 112, 54, Math.PI, Math.PI * 2);
-      ctx.lineTo(x + 54, y - 86);
-      ctx.lineTo(x - 54, y - 86);
-      ctx.closePath();
-      ctx.fill();
+      drawPreviewHair(ctx, profile, x, y, headRadius);
       if (profile.cap === "barista") {
         ctx.fillStyle = "#f0a24d";
         ctx.beginPath();
@@ -360,11 +365,159 @@
         ctx.roundRect(x - 52, y - 160, 104, 34, 16);
         ctx.fill();
       }
-      ctx.fillStyle = "#1c1714";
-      ctx.fillRect(x - 18, y - 100, 10, 4);
-      ctx.fillRect(x + 8, y - 100, 10, 4);
+      drawPreviewAccessory(ctx, profile, x, y, headRadius);
+      ctx.fillStyle = profile.eyeColor || "#3b2a1e";
+      ctx.beginPath();
+      ctx.ellipse(x - 16, y - 102, 7, 5, 0, 0, Math.PI * 2);
+      ctx.ellipse(x + 16, y - 102, 7, 5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(x - 14, y - 104, 2, 0, Math.PI * 2);
+      ctx.arc(x + 18, y - 104, 2, 0, Math.PI * 2);
+      ctx.fill();
+      if (isWoman) {
+        ctx.strokeStyle = "#1d1714";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x - 23, y - 110);
+        ctx.lineTo(x - 9, y - 108);
+        ctx.moveTo(x + 9, y - 108);
+        ctx.lineTo(x + 23, y - 110);
+        ctx.stroke();
+      }
       ctx.fillStyle = "#cf7b7b";
       ctx.fillRect(x - 10, y - 76, 20, 4);
+    }
+
+    function drawPreviewHair(ctx, profile, x, y, headRadius) {
+      const hair = profile.hair;
+      ctx.fillStyle = hair;
+      if (profile.hairStyle === "bob") {
+        ctx.beginPath();
+        ctx.arc(x, y - 112, headRadius + 6, Math.PI, Math.PI * 2);
+        ctx.lineTo(x + headRadius + 6, y - 62);
+        ctx.lineTo(x - headRadius - 6, y - 62);
+        ctx.closePath();
+        ctx.fill();
+      } else if (profile.hairStyle === "ponytail") {
+        ctx.beginPath();
+        ctx.arc(x, y - 112, headRadius + 4, Math.PI, Math.PI * 2);
+        ctx.lineTo(x + headRadius + 4, y - 84);
+        ctx.lineTo(x - headRadius - 4, y - 84);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillRect(x + 30, y - 94, 18, 54);
+      } else if (profile.hairStyle === "bun") {
+        ctx.beginPath();
+        ctx.arc(x, y - 112, headRadius + 3, Math.PI, Math.PI * 2);
+        ctx.lineTo(x + headRadius + 3, y - 84);
+        ctx.lineTo(x - headRadius - 3, y - 84);
+        ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x + 2, y - 154, 18, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (profile.hairStyle === "braid") {
+        ctx.beginPath();
+        ctx.arc(x, y - 112, headRadius + 3, Math.PI, Math.PI * 2);
+        ctx.lineTo(x + headRadius + 3, y - 84);
+        ctx.lineTo(x - headRadius - 3, y - 84);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillRect(x + 26, y - 88, 10, 68);
+      } else if (profile.hairStyle === "long") {
+        ctx.beginPath();
+        ctx.arc(x, y - 112, headRadius + 5, Math.PI, Math.PI * 2);
+        ctx.lineTo(x + headRadius + 5, y - 42);
+        ctx.lineTo(x - headRadius - 5, y - 42);
+        ctx.closePath();
+        ctx.fill();
+      } else if (profile.hairStyle === "fade") {
+        ctx.beginPath();
+        ctx.arc(x, y - 120, headRadius - 6, Math.PI, Math.PI * 2);
+        ctx.lineTo(x + headRadius - 6, y - 100);
+        ctx.lineTo(x - headRadius + 6, y - 100);
+        ctx.closePath();
+        ctx.fill();
+      } else if (profile.hairStyle === "quiff") {
+        ctx.beginPath();
+        ctx.arc(x, y - 114, headRadius + 4, Math.PI, Math.PI * 2);
+        ctx.lineTo(x + headRadius + 4, y - 92);
+        ctx.lineTo(x - headRadius + 12, y - 86);
+        ctx.lineTo(x - headRadius - 4, y - 92);
+        ctx.closePath();
+        ctx.fill();
+      } else if (profile.hairStyle === "curly") {
+        for (let i = -2; i <= 2; i += 1) {
+          ctx.beginPath();
+          ctx.arc(x + i * 18, y - 122 + Math.abs(i) * 2, 16, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (profile.hairStyle === "slick") {
+        ctx.beginPath();
+        ctx.ellipse(x, y - 118, headRadius + 6, 26, -0.18, Math.PI, Math.PI * 2);
+        ctx.lineTo(x + headRadius, y - 92);
+        ctx.lineTo(x - headRadius, y - 98);
+        ctx.closePath();
+        ctx.fill();
+      } else if (profile.hairStyle === "wave") {
+        ctx.beginPath();
+        ctx.arc(x, y - 112, headRadius + 5, Math.PI, Math.PI * 2);
+        ctx.lineTo(x + headRadius + 5, y - 70);
+        ctx.lineTo(x - headRadius - 5, y - 70);
+        ctx.closePath();
+        ctx.fill();
+      } else {
+        ctx.beginPath();
+        ctx.arc(x, y - 112, headRadius + 2, Math.PI, Math.PI * 2);
+        ctx.lineTo(x + headRadius + 2, y - 88);
+        ctx.lineTo(x - headRadius - 2, y - 88);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+
+    function drawPreviewAccessory(ctx, profile, x, y, headRadius) {
+      if (profile.accessory === "flower") {
+        const petalColors = ["#f7d85a", "#f08fb1", "#f7d85a", "#f08fb1"];
+        petalColors.forEach((color, index) => {
+          const angle = (Math.PI / 2) * index;
+          ctx.fillStyle = color;
+          ctx.beginPath();
+          ctx.arc(x + 34 + Math.cos(angle) * 8, y - 132 + Math.sin(angle) * 8, 8, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        ctx.fillStyle = "#fff2c9";
+        ctx.beginPath();
+        ctx.arc(x + 34, y - 132, 5, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (profile.accessory === "clip") {
+        ctx.fillStyle = "#dce8ff";
+        ctx.fillRect(x + headRadius - 8, y - 126, 20, 8);
+      } else if (profile.accessory === "ribbon") {
+        ctx.fillStyle = "#ff8fb6";
+        ctx.beginPath();
+        ctx.moveTo(x + 32, y - 134);
+        ctx.lineTo(x + 50, y - 126);
+        ctx.lineTo(x + 36, y - 116);
+        ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(x + 32, y - 134);
+        ctx.lineTo(x + 14, y - 126);
+        ctx.lineTo(x + 28, y - 116);
+        ctx.closePath();
+        ctx.fill();
+      } else if (profile.accessory === "band") {
+        ctx.fillStyle = "#d2d7de";
+        ctx.fillRect(x - headRadius, y - 122, headRadius * 2, 6);
+      } else if (profile.accessory === "stud") {
+        ctx.fillStyle = "#eef6ff";
+        ctx.beginPath();
+        ctx.arc(x - headRadius + 6, y - 90, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
 
     function shadePreview(hex, amount) {
@@ -406,7 +559,10 @@
       markSelectedSwatch(ui.shirtSwatches, avatarDraft.shirt);
       markSelectedSwatch(ui.pantsSwatches, avatarDraft.pants);
       markSelectedSwatch(ui.hairSwatches, avatarDraft.hair);
+      markSelectedSwatch(ui.eyeSwatches, avatarDraft.eyeColor);
       markSelectedSwatch(ui.apronSwatches, avatarDraft.apron);
+      populateHairStyleOptions(avatarDraft.gender, avatarDraft.hairStyle);
+      populateAccessoryOptions(avatarDraft.gender, avatarDraft.accessory);
       renderAvatarPreview(avatarDraft);
     }
 
@@ -421,6 +577,32 @@
       });
       ui.avatarLowerWear.value = options.some((entry) => entry.value === selectedValue) ? selectedValue : options[0].value;
       avatarDraft.lowerWear = ui.avatarLowerWear.value;
+    }
+
+    function populateHairStyleOptions(gender, selectedValue) {
+      const options = Data.avatarOptions.hairStylesByGender[gender] || Data.avatarOptions.hairStylesByGender.neutral;
+      ui.avatarHairStyle.innerHTML = "";
+      options.forEach((entry) => {
+        const option = document.createElement("option");
+        option.value = entry.value;
+        option.textContent = entry.label;
+        ui.avatarHairStyle.appendChild(option);
+      });
+      ui.avatarHairStyle.value = options.some((entry) => entry.value === selectedValue) ? selectedValue : options[0].value;
+      avatarDraft.hairStyle = ui.avatarHairStyle.value;
+    }
+
+    function populateAccessoryOptions(gender, selectedValue) {
+      const options = Data.avatarOptions.accessoriesByGender[gender] || Data.avatarOptions.accessoriesByGender.neutral;
+      ui.avatarAccessory.innerHTML = "";
+      options.forEach((entry) => {
+        const option = document.createElement("option");
+        option.value = entry.value;
+        option.textContent = entry.label;
+        ui.avatarAccessory.appendChild(option);
+      });
+      ui.avatarAccessory.value = options.some((entry) => entry.value === selectedValue) ? selectedValue : options[0].value;
+      avatarDraft.accessory = ui.avatarAccessory.value;
     }
 
     function buildAvatarStudio() {
@@ -440,11 +622,14 @@
       buildSwatches(ui.shirtSwatches, Data.avatarOptions.shirts, "shirt");
       buildSwatches(ui.pantsSwatches, Data.avatarOptions.pants, "pants");
       buildSwatches(ui.hairSwatches, Data.avatarOptions.hair, "hair");
+      buildSwatches(ui.eyeSwatches, Data.avatarOptions.eyeColors, "eyeColor");
       buildSwatches(ui.apronSwatches, Data.avatarOptions.aprons, "apron");
 
       ui.avatarGender.addEventListener("change", () => {
         avatarDraft.gender = ui.avatarGender.value;
         populateLowerWearOptions(avatarDraft.gender, avatarDraft.lowerWear);
+        populateHairStyleOptions(avatarDraft.gender, avatarDraft.hairStyle);
+        populateAccessoryOptions(avatarDraft.gender, avatarDraft.accessory);
         renderAvatarPreview(avatarDraft);
       });
       ui.avatarCap.addEventListener("change", () => {
@@ -453,6 +638,14 @@
       });
       ui.avatarLowerWear.addEventListener("change", () => {
         avatarDraft.lowerWear = ui.avatarLowerWear.value;
+        renderAvatarPreview(avatarDraft);
+      });
+      ui.avatarHairStyle.addEventListener("change", () => {
+        avatarDraft.hairStyle = ui.avatarHairStyle.value;
+        renderAvatarPreview(avatarDraft);
+      });
+      ui.avatarAccessory.addEventListener("change", () => {
+        avatarDraft.accessory = ui.avatarAccessory.value;
         renderAvatarPreview(avatarDraft);
       });
 
@@ -475,8 +668,9 @@
       setFlipText(ui.boardDay, parts.day);
       setFlipText(ui.boardDate, parts.date);
       const now = Date.now();
+      const boardMinute = Math.floor(now / 60000) * 60000;
       const priced = Data.recipes.map((recipe) => {
-        const livePrice = game.getLivePrice(recipe, now);
+        const livePrice = game.getLivePrice(recipe, boardMinute);
         return {
           recipe,
           livePrice,

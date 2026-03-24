@@ -117,11 +117,11 @@
   const customerNames = ["Mia", "Noah", "Theo", "Avery", "Lina", "Kai", "Nova", "Ezra", "Jules", "Ivy", "Zara"];
 
   const customerLooks = [
-    { skin: "#f1c7a7", shirt: "#ff8b64", pants: "#355f74", hair: "#362117", accent: "#ffd4c3", apron: "#f7f0ea", cap: "none", gender: "woman" },
-    { skin: "#cc9377", shirt: "#67d9df", pants: "#264356", hair: "#1a2430", accent: "#d4fbff", apron: "#eff3f8", cap: "beanie", gender: "man" },
-    { skin: "#a86f56", shirt: "#f3d36c", pants: "#5c3853", hair: "#2a180f", accent: "#fff4c4", apron: "#fff8e8", cap: "none", gender: "man" },
-    { skin: "#efd0bf", shirt: "#91e0a0", pants: "#524d77", hair: "#6f5038", accent: "#efffe8", apron: "#f2fbf2", cap: "visor", gender: "woman" },
-    { skin: "#8c5f4d", shirt: "#ee6c8d", pants: "#335149", hair: "#20120c", accent: "#ffd6df", apron: "#fff0f3", cap: "none", gender: "woman" }
+    { skin: "#f1c7a7", shirt: "#ff8b64", pants: "#355f74", hair: "#362117", accent: "#ffd4c3", apron: "#f7f0ea", cap: "none", gender: "woman", lowerWear: "pleated", eyeColor: "#4f3421", hairStyle: "wave", accessory: "flower" },
+    { skin: "#cc9377", shirt: "#67d9df", pants: "#264356", hair: "#1a2430", accent: "#d4fbff", apron: "#eff3f8", cap: "beanie", gender: "man", lowerWear: "straight", eyeColor: "#355273", hairStyle: "fade", accessory: "none" },
+    { skin: "#a86f56", shirt: "#f3d36c", pants: "#5c3853", hair: "#2a180f", accent: "#fff4c4", apron: "#fff8e8", cap: "none", gender: "man", lowerWear: "joggers", eyeColor: "#4f3421", hairStyle: "short", accessory: "none" },
+    { skin: "#efd0bf", shirt: "#91e0a0", pants: "#524d77", hair: "#6f5038", accent: "#efffe8", apron: "#f2fbf2", cap: "visor", gender: "woman", lowerWear: "skirt", eyeColor: "#2f7b73", hairStyle: "ponytail", accessory: "clip" },
+    { skin: "#8c5f4d", shirt: "#ee6c8d", pants: "#335149", hair: "#20120c", accent: "#ffd6df", apron: "#fff0f3", cap: "none", gender: "woman", lowerWear: "culottes", eyeColor: "#7a2a48", hairStyle: "bun", accessory: "flower" }
   ];
 
   const avatarOptions = {
@@ -133,18 +133,22 @@
       hair: "#3b2418",
       apron: "#f1f4fb",
       cap: "barista",
-      lowerWear: "tapered"
+      lowerWear: "tapered",
+      eyeColor: "#4f3421",
+      hairStyle: "wave",
+      accessory: "none"
     },
     genders: [
       { value: "woman", label: "Woman" },
       { value: "man", label: "Man" },
       { value: "neutral", label: "Neutral" }
     ],
-    skinTones: ["#f1d2bd", "#e4b693", "#d5a07e", "#b57c61", "#8a5d49"],
-    shirts: ["#f0a24d", "#67d9df", "#91e0a0", "#ef7d57", "#c38fff"],
-    pants: ["#24384b", "#355f74", "#5c3853", "#1f2a37", "#3f4d2b"],
-    hair: ["#2a180f", "#3b2418", "#5d4431", "#1b2531", "#6a2b1d"],
-    aprons: ["#f1f4fb", "#fff0db", "#e8f7ff", "#eef7e8", "#ffe9ef"],
+    skinTones: ["#f6dccb", "#efc6a8", "#e4b693", "#d5a07e", "#b57c61", "#9a6b57", "#7d513f"],
+    shirts: ["#f0a24d", "#67d9df", "#91e0a0", "#ef7d57", "#c38fff", "#ffcc66", "#6ea8ff", "#f28fb1"],
+    pants: ["#24384b", "#355f74", "#5c3853", "#1f2a37", "#3f4d2b", "#6b4f3d", "#334e68", "#5a5d7d"],
+    hair: ["#120b08", "#2a180f", "#3b2418", "#5d4431", "#7a5a3e", "#1b2531", "#6a2b1d", "#a16a2a"],
+    eyeColors: ["#4f3421", "#355273", "#2f7b73", "#7a2a48", "#6a4d9c", "#6b8f2a"],
+    aprons: ["#f1f4fb", "#fff0db", "#e8f7ff", "#eef7e8", "#ffe9ef", "#fff8d8", "#ece7ff"],
     caps: [
       { value: "barista", label: "Barista Cap" },
       { value: "visor", label: "Visor" },
@@ -154,6 +158,48 @@
       { value: "headwrap", label: "Headwrap" },
       { value: "none", label: "No Cap" }
     ],
+    hairStylesByGender: {
+      woman: [
+        { value: "wave", label: "Soft Waves" },
+        { value: "bob", label: "Bob Cut" },
+        { value: "ponytail", label: "Ponytail" },
+        { value: "bun", label: "Bun" },
+        { value: "braid", label: "Braid" },
+        { value: "long", label: "Long Hair" }
+      ],
+      man: [
+        { value: "short", label: "Short Cut" },
+        { value: "fade", label: "Fade" },
+        { value: "quiff", label: "Quiff" },
+        { value: "curly", label: "Curly Top" },
+        { value: "slick", label: "Slick Back" }
+      ],
+      neutral: [
+        { value: "short", label: "Short Cut" },
+        { value: "wave", label: "Soft Waves" },
+        { value: "curly", label: "Curly Top" },
+        { value: "bob", label: "Bob Cut" },
+        { value: "slick", label: "Slick Back" }
+      ]
+    },
+    accessoriesByGender: {
+      woman: [
+        { value: "none", label: "None" },
+        { value: "flower", label: "Flower" },
+        { value: "clip", label: "Hair Clip" },
+        { value: "ribbon", label: "Ribbon" }
+      ],
+      man: [
+        { value: "none", label: "None" },
+        { value: "band", label: "Head Band" },
+        { value: "stud", label: "Stud" }
+      ],
+      neutral: [
+        { value: "none", label: "None" },
+        { value: "band", label: "Head Band" },
+        { value: "clip", label: "Hair Clip" }
+      ]
+    },
     lowerWearByGender: {
       woman: [
         { value: "tapered", label: "Tapered Pants" },
