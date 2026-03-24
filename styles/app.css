@@ -19,6 +19,7 @@
 
 html,
 body {
+  height: 100%;
   margin: 0;
   min-height: 100%;
   background:
@@ -52,7 +53,8 @@ code {
 }
 
 .app-shell {
-  min-height: 100vh;
+  height: 100dvh;
+  min-height: 100dvh;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   gap: 10px;
@@ -221,16 +223,19 @@ button:disabled {
 .content-grid {
   min-height: 0;
   display: block;
+  height: 100%;
 }
 
 .main-column {
   min-height: 0;
   height: 100%;
+  overflow: hidden;
 }
 
 .view-panel {
   display: none;
-  min-height: 100%;
+  min-height: 0;
+  height: 100%;
 }
 
 .view-panel.is-active {
@@ -241,17 +246,17 @@ button:disabled {
   display: grid;
   grid-template-columns: 272px minmax(0, 1fr) 320px;
   gap: 14px;
-  align-items: start;
-  height: calc(100vh - 98px);
-  min-height: 640px;
+  align-items: stretch;
+  height: 100%;
+  min-height: 0;
 }
 
 .left-rail {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) minmax(0, 0.95fr);
+  grid-template-rows: minmax(128px, 0.84fr) minmax(0, 1fr) minmax(0, 0.95fr);
   gap: 12px;
   align-self: stretch;
-  overflow: auto;
+  overflow: hidden;
   padding-right: 2px;
 }
 
@@ -377,6 +382,7 @@ button:disabled {
   position: relative;
   width: 100%;
   min-height: 0;
+  overflow: auto;
 }
 
 .overlay-card h2 {
@@ -459,6 +465,7 @@ button:disabled {
   display: grid;
   gap: 8px;
   margin-top: 10px;
+  align-content: start;
 }
 
 .action-list {
