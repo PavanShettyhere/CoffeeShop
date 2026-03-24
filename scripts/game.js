@@ -530,6 +530,9 @@
         state.soundEnabled = audio.enabled;
         if (audio.enabled && audio.context.state === "suspended") audio.context.resume();
       }
+      if (state.soundEnabled && state.started && audio) {
+        audio.playSoftPad(audio.context.currentTime, audio.padChords[audio.padIndex]);
+      }
       if (state.soundEnabled) sfx("start");
       notify(true);
     }
