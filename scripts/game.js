@@ -122,20 +122,21 @@
       return `rgb(${r}, ${g}, ${b})`;
     }
 
-    function roundedRect(x, y, w, h, r, fill) {
-      ctx.fillStyle = fill;
-      ctx.beginPath();
-      ctx.moveTo(x + r, y);
-      ctx.lineTo(x + w - r, y);
-      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-      ctx.lineTo(x + w, y + h - r);
-      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-      ctx.lineTo(x + r, y + h);
-      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-      ctx.lineTo(x, y + r);
-      ctx.quadraticCurveTo(x, y, x + r, y);
-      ctx.closePath();
-      ctx.fill();
+    function roundedRect(x, y, w, h, r, fill, drawCtx) {
+      const targetCtx = drawCtx || ctx;
+      targetCtx.fillStyle = fill;
+      targetCtx.beginPath();
+      targetCtx.moveTo(x + r, y);
+      targetCtx.lineTo(x + w - r, y);
+      targetCtx.quadraticCurveTo(x + w, y, x + w, y + r);
+      targetCtx.lineTo(x + w, y + h - r);
+      targetCtx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      targetCtx.lineTo(x + r, y + h);
+      targetCtx.quadraticCurveTo(x, y + h, x, y + h - r);
+      targetCtx.lineTo(x, y + r);
+      targetCtx.quadraticCurveTo(x, y, x + r, y);
+      targetCtx.closePath();
+      targetCtx.fill();
     }
 
     function prism(x, y, width, depth, height, color) {
@@ -609,7 +610,43 @@
       origin.y = 188;
     }
 
+    function getWallTheme() {
+      return Data.restaurantOptions.wallThemeMap[state.restaurantProfile.wallTheme] || Data.restaurantOptions.wallThemeMap.midnight;
+    }
+
+    function getFloorTheme() {
+      return Data.restaurantOptions.floorThemeMap[state.restaurantProfile.floorTheme] || Data.restaurantOptions.floorThemeMap.blueprint;
+    }
+
+    function getTableColor() {
+      return Data.restaurantOptions.tableStyleMap[state.restaurantProfile.tableStyle] || Data.restaurantOptions.tableStyleMap.walnut;
+    }
+
+    function getCounterStyle() {
+      return Data.restaurantOptions.counterStyleMap[state.restaurantProfile.counterStyle] || Data.restaurantOptions.counterStyleMap.oak;
+    }
+
+    function getMachineTheme() {
+      return Data.restaurantOptions.machineFinishMap[state.restaurantProfile.machineFinish] || Data.restaurantOptions.machineFinishMap.classic;
+    }
+
+    function getTableTiles() {
+      const count = clamp(Number(state.restaurantProfile.tableCount) || 2, 1, TABLE_TILES.length);
+      return TABLE_TILES.slice(0, count);
+    }
+
+    function getStationSkin(station) {
+      const theme = getMachineTheme();
+      const skin = theme[station.type] || {};
+      return {
+        color: skin.color || shade(station.color, theme.default.shift || 0),
+        accent: skin.accent || shade(station.accent, theme.default.accentShift || 0),
+        height: station.height
+      };
+    }
+
     function drawFloor() {
+      const floorTheme = getFloorTheme();
       for (let y = 0; y < GRID_H; y += 1) {
         for (let x = 0; x < GRID_W; x += 1) {
           const p = isoToScreen(x, y);
@@ -619,7 +656,9 @@
           ctx.lineTo(p.x, p.y + TILE_H);
           ctx.lineTo(p.x - TILE_W / 2, p.y + TILE_H / 2);
           ctx.closePath();
-          ctx.fillStyle = x === 0 || y === 0 || x === GRID_W - 1 || y === GRID_H - 1 ? "#244151" : ((x + y) % 2 === 0 ? "#315468" : "#284658");
+          ctx.fillStyle = x === 0 || y === 0 || x === GRID_W - 1 || y === GRID_H - 1
+            ? floorTheme.edge
+            : ((x + y) % 2 === 0 ? floorTheme.even : floorTheme.odd);
           ctx.fill();
           ctx.strokeStyle = "rgba(255,255,255,0.06)";
           ctx.stroke();
@@ -628,6 +667,7 @@
     }
 
     function drawWalls() {
+      const wallTheme = getWallTheme();
       for (let i = 0; i < GRID_W - 1; i += 1) {
         const p = isoToScreen(i, 0);
         ctx.beginPath();
@@ -636,7 +676,7 @@
         ctx.lineTo(p.x + TILE_W / 2, p.y - 94);
         ctx.lineTo(p.x, p.y - 118);
         ctx.closePath();
-        ctx.fillStyle = "#183142";
+        ctx.fillStyle = i % 2 === 0 ? wallTheme.top : shade(wallTheme.top, 8);
         ctx.fill();
         ctx.beginPath();
         ctx.moveTo(p.x, p.y);
@@ -644,8 +684,10 @@
         ctx.lineTo(p.x - TILE_W / 2, p.y - 72);
         ctx.lineTo(p.x, p.y - 118);
         ctx.closePath();
-        ctx.fillStyle = "#132635";
+        ctx.fillStyle = i % 2 === 0 ? wallTheme.left : wallTheme.right;
         ctx.fill();
+        ctx.fillStyle = wallTheme.trim;
+        ctx.fillRect(p.x - TILE_W / 2, p.y - 76, TILE_W, 5);
       }
     }
 
@@ -664,11 +706,12 @@
 
     function drawQueue() {
       const p = isoToScreen(4, 7.2);
-      ctx.fillStyle = "rgba(255,188,87,0.08)";
+      const counterStyle = getCounterStyle();
+      ctx.fillStyle = `${counterStyle.accent}22`;
       ctx.fillRect(p.x - 240, p.y - 12, 320, 84);
       Data.queueTiles.forEach((tile, index) => {
         const marker = isoToScreen(tile.x, tile.y);
-        ctx.strokeStyle = index === 0 ? "rgba(255,188,87,0.8)" : "rgba(255,255,255,0.16)";
+        ctx.strokeStyle = index === 0 ? counterStyle.accent : "rgba(255,255,255,0.16)";
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(marker.x, marker.y + 14);
@@ -682,40 +725,42 @@
 
     function drawStation(station) {
       const p = isoToScreen(station.tile.x, station.tile.y);
-      prism(p.x, p.y, TILE_W * 0.92, TILE_H * 0.82, station.height, station.color);
-      ctx.fillStyle = shade(station.color, 16);
-      ctx.fillRect(p.x - 34, p.y - station.height + 12, 68, 14);
+      const skin = getStationSkin(station);
+      const counterStyle = getCounterStyle();
+      prism(p.x, p.y, TILE_W * 0.92, TILE_H * 0.82, skin.height, station.type === "counter" ? counterStyle.color : skin.color);
+      ctx.fillStyle = shade(station.type === "counter" ? counterStyle.color : skin.color, 16);
+      ctx.fillRect(p.x - 34, p.y - skin.height + 12, 68, 14);
       if (station.type === "cups") {
-        ["#f3efe7", "#d1ecf0", "#f2d6a4"].forEach((color, i) => { ctx.fillStyle = color; ctx.fillRect(p.x - 28 + i * 18, p.y - station.height + 4, 12, 24); });
+        ["#f3efe7", "#d1ecf0", "#f2d6a4"].forEach((color, i) => { ctx.fillStyle = color; ctx.fillRect(p.x - 28 + i * 18, p.y - skin.height + 4, 12, 24); });
       } else if (station.type === "grinder") {
-        ctx.fillStyle = "#202c34"; ctx.fillRect(p.x - 18, p.y - station.height + 12, 36, 46);
-        ctx.fillStyle = "#667c89"; ctx.beginPath(); ctx.moveTo(p.x - 13, p.y - station.height + 12); ctx.lineTo(p.x + 13, p.y - station.height + 12); ctx.lineTo(p.x + 8, p.y - station.height - 18); ctx.lineTo(p.x - 8, p.y - station.height - 18); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = "#202c34"; ctx.fillRect(p.x - 18, p.y - skin.height + 12, 36, 46);
+        ctx.fillStyle = shade(skin.accent, -40); ctx.beginPath(); ctx.moveTo(p.x - 13, p.y - skin.height + 12); ctx.lineTo(p.x + 13, p.y - skin.height + 12); ctx.lineTo(p.x + 8, p.y - skin.height - 18); ctx.lineTo(p.x - 8, p.y - skin.height - 18); ctx.closePath(); ctx.fill();
       } else if (station.type === "espresso") {
-        ctx.fillStyle = "#d8dee6"; ctx.fillRect(p.x - 34, p.y - station.height + 6, 68, 42);
-        ctx.fillStyle = "#1f2020"; ctx.fillRect(p.x - 30, p.y - station.height + 16, 60, 12);
-        ctx.fillStyle = "#ffbc57"; ctx.fillRect(p.x - 20, p.y - station.height + 32, 10, 6); ctx.fillRect(p.x - 4, p.y - station.height + 32, 10, 6); ctx.fillRect(p.x + 12, p.y - station.height + 32, 10, 6);
+        ctx.fillStyle = "#d8dee6"; ctx.fillRect(p.x - 34, p.y - skin.height + 6, 68, 42);
+        ctx.fillStyle = "#1f2020"; ctx.fillRect(p.x - 30, p.y - skin.height + 16, 60, 12);
+        ctx.fillStyle = skin.accent; ctx.fillRect(p.x - 20, p.y - skin.height + 32, 10, 6); ctx.fillRect(p.x - 4, p.y - skin.height + 32, 10, 6); ctx.fillRect(p.x + 12, p.y - skin.height + 32, 10, 6);
       } else if (station.type === "steam") {
-        ctx.fillStyle = "#cad5dd"; ctx.fillRect(p.x - 24, p.y - station.height + 12, 48, 34);
-        ctx.strokeStyle = "#d8f6ff"; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(p.x + 12, p.y - station.height + 12); ctx.lineTo(p.x + 24, p.y - station.height - 28); ctx.stroke();
+        ctx.fillStyle = "#cad5dd"; ctx.fillRect(p.x - 24, p.y - skin.height + 12, 48, 34);
+        ctx.strokeStyle = skin.accent; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(p.x + 12, p.y - skin.height + 12); ctx.lineTo(p.x + 24, p.y - skin.height - 28); ctx.stroke();
       } else if (station.type === "water") {
-        ctx.fillStyle = "#b8c9d8"; ctx.fillRect(p.x - 14, p.y - station.height + 8, 28, 48);
-        ctx.strokeStyle = "#d9f4ff"; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(p.x - 2, p.y - station.height + 12); ctx.lineTo(p.x + 18, p.y - station.height + 12); ctx.lineTo(p.x + 18, p.y - station.height + 24); ctx.lineTo(p.x + 8, p.y - station.height + 24); ctx.lineTo(p.x + 8, p.y - station.height + 40); ctx.stroke();
+        ctx.fillStyle = "#b8c9d8"; ctx.fillRect(p.x - 14, p.y - skin.height + 8, 28, 48);
+        ctx.strokeStyle = skin.accent; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(p.x - 2, p.y - skin.height + 12); ctx.lineTo(p.x + 18, p.y - skin.height + 12); ctx.lineTo(p.x + 18, p.y - skin.height + 24); ctx.lineTo(p.x + 8, p.y - skin.height + 24); ctx.lineTo(p.x + 8, p.y - skin.height + 40); ctx.stroke();
       } else if (station.type === "syrup") {
-        ["#f29b68", "#f5d98f", "#df7285"].forEach((color, i) => { ctx.fillStyle = color; ctx.fillRect(p.x - 26 + i * 18, p.y - station.height + 10, 12, 34); });
+        [shade(skin.accent, -10), "#f5d98f", shade(skin.color, 24)].forEach((color, i) => { ctx.fillStyle = color; ctx.fillRect(p.x - 26 + i * 18, p.y - skin.height + 10, 12, 34); });
       } else if (station.type === "topping") {
-        ctx.fillStyle = "#eef2f7"; ctx.fillRect(p.x - 24, p.y - station.height + 12, 16, 34); ctx.fillRect(p.x + 8, p.y - station.height + 12, 16, 34);
+        ctx.fillStyle = "#eef2f7"; ctx.fillRect(p.x - 24, p.y - skin.height + 12, 16, 34); ctx.fillRect(p.x + 8, p.y - skin.height + 12, 16, 34);
       } else if (station.type === "counter") {
-        ctx.fillStyle = "#f1f4fb"; ctx.fillRect(p.x - 34, p.y - station.height + 10, 68, 16);
-        ctx.fillStyle = "#151b21"; ctx.fillRect(p.x - 20, p.y - station.height + 28, 40, 20);
-        ctx.fillStyle = "#67d9df"; ctx.fillRect(p.x - 12, p.y - station.height + 34, 24, 6);
+        ctx.fillStyle = "#f1f4fb"; ctx.fillRect(p.x - 34, p.y - skin.height + 10, 68, 16);
+        ctx.fillStyle = "#151b21"; ctx.fillRect(p.x - 20, p.y - skin.height + 28, 40, 20);
+        ctx.fillStyle = counterStyle.accent; ctx.fillRect(p.x - 12, p.y - skin.height + 34, 24, 6);
       }
       const near = nearbyStation();
       if (near && near.id === station.id) {
         ctx.strokeStyle = "rgba(255,188,87,0.85)"; ctx.lineWidth = 3; ctx.beginPath();
-        ctx.moveTo(p.x, p.y - station.height - 8); ctx.lineTo(p.x + 38, p.y - station.height + 10); ctx.lineTo(p.x, p.y - station.height + 28); ctx.lineTo(p.x - 38, p.y - station.height + 10); ctx.closePath(); ctx.stroke();
+        ctx.moveTo(p.x, p.y - skin.height - 8); ctx.lineTo(p.x + 38, p.y - skin.height + 10); ctx.lineTo(p.x, p.y - skin.height + 28); ctx.lineTo(p.x - 38, p.y - skin.height + 10); ctx.closePath(); ctx.stroke();
       }
-      roundedRect(p.x - 66, p.y - station.height - 36, 132, 24, 10, "rgba(7,16,24,0.88)");
-      ctx.fillStyle = "#f1f7fa"; ctx.font = "bold 11px Trebuchet MS"; ctx.fillText(station.label, p.x - 55, p.y - station.height - 19);
+      roundedRect(p.x - 66, p.y - skin.height - 36, 132, 24, 10, "rgba(7,16,24,0.88)");
+      ctx.fillStyle = "#f1f7fa"; ctx.font = "bold 11px Trebuchet MS"; ctx.fillText(station.label, p.x - 55, p.y - skin.height - 19);
     }
 
     function drawCharacter(point, look, playerMode, phase) {
@@ -1053,8 +1098,9 @@
       ctx.fillRect(0, 0, width, height);
       drawWalls();
       drawFloor();
-      drawTable(0.9, 6.1, "#7b5a47");
-      drawTable(6.8, 6.9, "#755641");
+      getTableTiles().forEach((tile, index) => {
+        drawTable(tile.x, tile.y, index % 2 === 0 ? getTableColor() : shade(getTableColor(), -8));
+      });
       drawQueue();
 
       const drawables = [];
