@@ -14,10 +14,6 @@
           <div class="eyebrow">Virtual Coffee Shop Game</div>
           <h1>Velvet Pour</h1>
           <p>Own the floor, build the drinks, and keep the queue moving.</p>
-          <div class="header-briefing" id="overlayCard">
-            <strong>Open The Cafe</strong>
-            <span>Move through the room, build the requested drinks on the correct machines, and serve them at the front counter.</span>
-          </div>
         </div>
       </div>
 
@@ -26,6 +22,7 @@
           <button id="startButton" class="primary-button" type="button">Start Shift</button>
           <button id="stopButton" class="secondary-button" type="button">Stop Shift</button>
           <button id="soundButton" class="secondary-button" type="button">Sound: On</button>
+          <button id="musicButton" class="secondary-button" type="button">Music: On</button>
           <button id="trashButton" class="secondary-button" type="button">Trash Cup</button>
         </div>
 
@@ -66,6 +63,13 @@
         <section id="gameView" class="view-panel is-active">
           <div class="game-layout">
             <aside class="left-rail">
+              <section class="glass-card overlay-card" id="overlayCard">
+                <div class="eyebrow">Shift Briefing</div>
+                <h2>Open The Cafe</h2>
+                <p>Move through the room, build the requested drinks on the correct machines, and serve them at the front counter.</p>
+                <p class="overlay-tip">Start Shift unlocks audio and begins the customer rush.</p>
+              </section>
+
               <section class="glass-card station-card">
                 <div class="eyebrow">Nearby Station</div>
                 <h2 id="stationTitle">Walk up to a machine</h2>
@@ -211,6 +215,7 @@
               <div class="eyebrow">Restaurant Studio</div>
               <h2>Shape the coffee room</h2>
               <p>These settings sync with the live cafe in Game Zone.</p>
+              <canvas id="restaurantCanvas" width="560" height="360" aria-label="Restaurant preview"></canvas>
               <div id="restaurantSummary" class="studio-summary"></div>
             </div>
 
