@@ -10,9 +10,15 @@
   <div class="app-shell">
     <header class="topbar panel">
       <div class="brand-block">
-        <div class="eyebrow">Virtual Coffee Shop Game</div>
-        <h1>Velvet Pour</h1>
-        <p>Own the floor, build the drinks, and keep the queue moving.</p>
+        <div class="brand-copy">
+          <div class="eyebrow">Virtual Coffee Shop Game</div>
+          <h1>Velvet Pour</h1>
+          <p>Own the floor, build the drinks, and keep the queue moving.</p>
+          <div class="header-briefing" id="overlayCard">
+            <strong>Open The Cafe</strong>
+            <span>Move through the room, build the requested drinks on the correct machines, and serve them at the front counter.</span>
+          </div>
+        </div>
       </div>
 
       <div class="topbar-controls">
@@ -32,6 +38,7 @@
                 <button id="gameTabButton" class="tab-button is-active" type="button">Game Zone</button>
                 <button id="trainingTabButton" class="tab-button" type="button">Coffee Trainee Zone</button>
                 <button id="avatarTabButton" class="tab-button" type="button">Character Studio</button>
+                <button id="restaurantTabButton" class="tab-button" type="button">Restaurant Studio</button>
               </div>
             </div>
 
@@ -59,13 +66,6 @@
         <section id="gameView" class="view-panel is-active">
           <div class="game-layout">
             <aside class="left-rail">
-              <div class="overlay-card glass-card" id="overlayCard">
-                <div class="eyebrow">Shift Briefing</div>
-                <h2>Open The Cafe</h2>
-                <p>Move through the room, build the requested drinks on the correct machines, and serve them at the front counter.</p>
-                <p class="overlay-tip">Start Shift unlocks audio and begins the customer rush.</p>
-              </div>
-
               <section class="glass-card station-card">
                 <div class="eyebrow">Nearby Station</div>
                 <h2 id="stationTitle">Walk up to a machine</h2>
@@ -200,6 +200,56 @@
               <div class="avatar-form__actions">
                 <button id="avatarApplyButton" class="primary-button" type="submit">Use This Character</button>
                 <button id="avatarResetButton" class="secondary-button" type="button">Reset Default</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section id="restaurantView" class="view-panel panel studio-panel">
+          <div class="studio-layout">
+            <div class="glass-card studio-summary-card">
+              <div class="eyebrow">Restaurant Studio</div>
+              <h2>Shape the coffee room</h2>
+              <p>These settings sync with the live cafe in Game Zone.</p>
+              <div id="restaurantSummary" class="studio-summary"></div>
+            </div>
+
+            <form id="restaurantForm" class="glass-card studio-form" autocomplete="off">
+              <div class="avatar-form__grid">
+                <label class="field">
+                  <span>Wall theme</span>
+                  <select id="restaurantWallTheme"></select>
+                </label>
+
+                <label class="field">
+                  <span>Floor theme</span>
+                  <select id="restaurantFloorTheme"></select>
+                </label>
+
+                <label class="field">
+                  <span>Table count</span>
+                  <select id="restaurantTableCount"></select>
+                </label>
+
+                <label class="field">
+                  <span>Table finish</span>
+                  <select id="restaurantTableStyle"></select>
+                </label>
+
+                <label class="field">
+                  <span>Machine finish</span>
+                  <select id="restaurantMachineFinish"></select>
+                </label>
+
+                <label class="field">
+                  <span>Counter finish</span>
+                  <select id="restaurantCounterStyle"></select>
+                </label>
+              </div>
+
+              <div class="avatar-form__actions">
+                <button id="restaurantDoneButton" class="primary-button" type="submit">Back To Game</button>
+                <button id="restaurantResetButton" class="secondary-button" type="button">Reset Default</button>
               </div>
             </form>
           </div>
