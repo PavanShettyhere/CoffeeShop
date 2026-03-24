@@ -253,7 +253,7 @@ button:disabled {
 
 .left-rail {
   display: grid;
-  grid-template-rows: minmax(0, 1.12fr) minmax(0, 1fr) minmax(74px, 0.38fr);
+  grid-template-rows: minmax(0, 1.12fr) minmax(0, 1fr);
   gap: 12px;
   align-self: stretch;
   overflow: hidden;
@@ -740,6 +740,11 @@ button:disabled {
 
 .more-menu__section + .more-menu__section {
   margin-top: 14px;
+}
+
+.more-menu__section.overlay-card {
+  margin-top: 14px;
+  padding: 10px 12px;
 }
 
 .more-menu__actions {
