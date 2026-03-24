@@ -35,6 +35,18 @@
     };
   }
 
+  function cloneProfile(profile) {
+    return {
+      gender: profile.gender,
+      skin: profile.skin,
+      shirt: profile.shirt,
+      pants: profile.pants,
+      hair: profile.hair,
+      apron: profile.apron,
+      cap: profile.cap
+    };
+  }
+
   function createGame(options) {
     const canvas = options.canvas;
     const ctx = canvas.getContext("2d");
@@ -62,7 +74,9 @@
       floatingText: [],
       keys: new Set(),
       uiTick: 0,
-      soundEnabled: true
+      soundEnabled: true,
+      renderClock: 0,
+      playerProfile: cloneProfile(Data.avatarOptions.defaultProfile)
     };
 
     function isoToScreen(tileX, tileY) {
@@ -163,6 +177,7 @@
         comboLabel: `x${state.combo.toFixed(2).replace(/\.00$/, "")}`,
         rank: getRank(state.score),
         soundEnabled: state.soundEnabled,
+        playerProfile: cloneProfile(state.playerProfile),
         currentStation: station,
         availableActions: station ? (station.id === "counter" ? ["serve"] : station.actions.slice()) : [],
         activeCup: state.activeCup ? { steps: state.activeCup.steps.slice(), bestMatch: bestRecipeMatch(state.activeCup.steps) } : null,
@@ -320,11 +335,11 @@
       let padIndex = 0;
       playSoftPad(context.currentTime, padChords[padIndex]);
       const ambienceTimer = window.setInterval(() => {
-        if (!audio || !audio.enabled) return;
+        if (!audio || !audio.enabled || !state.started) return;
         padIndex = (padIndex + 1) % padChords.length;
         playSoftPad(context.currentTime, padChords[padIndex]);
       }, 3200);
-      audio = { context, master, lowpass, ambienceTimer, enabled: true };
+      audio = { context, master, lowpass, ambienceTimer, enabled: true, padChords, get padIndex() { return padIndex; }, set padIndex(v) { padIndex = v; }, playSoftPad };
       state.soundEnabled = true;
     }
 
@@ -481,6 +496,9 @@
       player.targetX = 4;
       player.targetY = 5;
       player.task = null;
+      if (audio && audio.enabled) {
+        audio.playSoftPad(audio.context.currentTime, audio.padChords[audio.padIndex]);
+      }
       sfx("start");
       speak("Shift started", "#8be28f");
       notify(true);
@@ -515,6 +533,15 @@
       }
       if (state.soundEnabled) sfx("start");
       notify(true);
+    }
+
+    function setPlayerProfile(profile) {
+      state.playerProfile = cloneProfile(profile);
+      notify(true);
+    }
+
+    function getPlayerProfile() {
+      return cloneProfile(state.playerProfile);
     }
 
     function debugSetPlayer(tileX, tileY) {
@@ -657,16 +684,72 @@
       ctx.fillStyle = "#f1f7fa"; ctx.font = "bold 11px Trebuchet MS"; ctx.fillText(station.label, p.x - 55, p.y - station.height - 19);
     }
 
-    function drawCharacter(point, look, playerMode) {
+    function drawCharacter(point, look, playerMode, phase) {
+      const bob = Math.sin(state.renderClock * 2.2 + phase) * 2.2;
+      const x = point.x;
+      const y = point.y + bob;
+      const shirt = look.shirt;
+      const apron = look.apron || shade(look.shirt, 34);
+      const hair = look.hair || "#2c1b12";
+      const skin = look.skin;
+
       ctx.fillStyle = "rgba(0,0,0,0.18)";
-      ctx.beginPath(); ctx.ellipse(point.x, point.y + 16, 24, 9, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = look.pants; ctx.fillRect(point.x - 14, point.y - 18, 12, 28); ctx.fillRect(point.x + 2, point.y - 18, 12, 28);
-      ctx.fillStyle = look.shirt; ctx.fillRect(point.x - 18, point.y - 52, 36, 34);
-      ctx.fillStyle = look.skin; ctx.fillRect(point.x - 21, point.y - 49, 6, 22); ctx.fillRect(point.x + 15, point.y - 49, 6, 22);
-      if (playerMode) { ctx.fillStyle = "#f1f4fb"; ctx.fillRect(point.x - 10, point.y - 48, 20, 30); }
-      ctx.fillStyle = look.skin; ctx.fillRect(point.x - 17, point.y - 86, 34, 32);
-      ctx.fillStyle = "#20160f"; ctx.fillRect(point.x - 17, point.y - 92, 34, 14);
-      ctx.fillStyle = playerMode ? "#ff8a3d" : "#20160f"; ctx.fillRect(point.x - 6, point.y - 64, 12, 3);
+      ctx.beginPath();
+      ctx.ellipse(x, y + 18, 24, 9, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = shade(look.pants, -22);
+      ctx.fillRect(x - 14, y - 14, 10, 30);
+      ctx.fillRect(x + 4, y - 14, 10, 30);
+      ctx.fillStyle = "#171a1f";
+      ctx.fillRect(x - 15, y + 13, 12, 4);
+      ctx.fillRect(x + 3, y + 13, 12, 4);
+
+      ctx.fillStyle = shirt;
+      roundedRect(x - 20, y - 52, 40, 34, 10, shirt);
+      ctx.fillStyle = skin;
+      roundedRect(x - 23, y - 48, 6, 19, 3, skin);
+      roundedRect(x + 17, y - 48, 6, 19, 3, skin);
+
+      ctx.fillStyle = apron;
+      roundedRect(x - 11, y - 48, 22, 28, 6, apron);
+      ctx.fillStyle = playerMode ? "#ffb24a" : (look.accent || "#eef4fa");
+      ctx.fillRect(x - 8, y - 44, 16, 4);
+
+      ctx.fillStyle = skin;
+      ctx.beginPath();
+      ctx.arc(x, y - 72, 17, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = hair;
+      ctx.beginPath();
+      ctx.arc(x, y - 77, 18, Math.PI, Math.PI * 2);
+      ctx.lineTo(x + 18, y - 70);
+      ctx.lineTo(x - 18, y - 70);
+      ctx.closePath();
+      ctx.fill();
+
+      if (look.cap === "barista") {
+        roundedRect(x - 18, y - 88, 36, 12, 5, playerMode ? "#f0a24d" : shade(shirt, 12));
+        ctx.fillRect(x - 8, y - 76, 18, 4);
+      } else if (look.cap === "visor") {
+        roundedRect(x - 16, y - 84, 32, 8, 5, playerMode ? "#f0a24d" : shade(shirt, 12));
+        ctx.fillRect(x - 4, y - 78, 16, 3);
+      } else if (look.cap === "beanie") {
+        roundedRect(x - 16, y - 88, 32, 16, 8, shade(hair, 16));
+      }
+
+      ctx.fillStyle = "#1d1714";
+      ctx.fillRect(x - 7, y - 72, 4, 2);
+      ctx.fillRect(x + 3, y - 72, 4, 2);
+      ctx.fillStyle = "#d27473";
+      ctx.fillRect(x - 5, y - 64, 10, 2);
+
+      if (look.gender === "woman") {
+        ctx.fillStyle = hair;
+        ctx.fillRect(x - 18, y - 68, 4, 12);
+        ctx.fillRect(x + 14, y - 68, 4, 12);
+      }
     }
 
     function drawSpeechBubble(x, y, a, b) {
@@ -702,7 +785,7 @@
         if (item.type === "station") drawStation(item.station);
         if (item.type === "player") {
           const p = isoToScreen(player.x, player.y);
-          drawCharacter({ x: p.x, y: p.y }, { skin: "#d5a07e", shirt: "#ffbc57", pants: "#24384b" }, true);
+          drawCharacter({ x: p.x, y: p.y }, state.playerProfile, true, 0.3);
           if (state.activeCup) {
             ctx.fillStyle = "#f8efe5"; ctx.fillRect(p.x + 10, p.y - 56, 14, 14);
             ctx.fillStyle = "#5d392b"; ctx.fillRect(p.x + 11, p.y - 48, 12, 3);
@@ -710,7 +793,7 @@
         }
         if (item.type === "customer") {
           const p = isoToScreen(item.tile.x, item.tile.y);
-          drawCharacter({ x: p.x, y: p.y }, item.customer.look, false);
+          drawCharacter({ x: p.x, y: p.y }, item.customer.look, false, item.tile.x * 0.4 + item.tile.y * 0.2);
           const recipe = Data.recipes.find((entry) => entry.key === item.customer.recipeKey);
           drawSpeechBubble(p.x + 22, p.y - 108, item.customer.name, recipe.boardLabel);
         }
@@ -734,6 +817,7 @@
     }
 
     function update(dt) {
+      state.renderClock += dt;
       state.uiTick -= dt;
       if (state.started && !state.paused && !state.gameOver) {
         state.shiftRemaining -= dt;
@@ -857,14 +941,16 @@
     notify(true);
     requestAnimationFrame(loop);
 
-    return {
-      startShift,
-      stopShift,
-      toggleSound,
-      trashCup,
-      setView,
-      doAction,
-      getSnapshot: snapshot,
+      return {
+        startShift,
+        stopShift,
+        toggleSound,
+        trashCup,
+        setView,
+        setPlayerProfile,
+        getPlayerProfile,
+        doAction,
+        getSnapshot: snapshot,
       formatEuro,
       getLivePrice,
       getDateParts,
