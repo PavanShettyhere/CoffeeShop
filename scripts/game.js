@@ -91,6 +91,7 @@
       spawnCooldown: 2,
       activeCup: null,
       customers: [],
+      reactions: [],
       particles: [],
       floatingText: [],
       keys: new Set(),
@@ -236,6 +237,7 @@
         priceLabel: formatEuro(customer.offerPrice),
         patience: customer.patience,
         patienceMax: customer.patienceMax,
+        gender: customer.look.gender,
         front: index === 0
       };
     }
@@ -293,6 +295,23 @@
         name,
         look
       };
+    }
+
+    function reactionText(customer, mood) {
+      const isWoman = customer.look && customer.look.gender === "woman";
+      if (mood === "happy") return isWoman ? "She's happy!" : "He's happy!";
+      return isWoman ? "She's angry!" : "He's angry!";
+    }
+
+    function pushReaction(customer, tile, mood) {
+      const point = isoToScreen(tile.x, tile.y);
+      state.reactions.push({
+        x: point.x + 18,
+        y: point.y - 128,
+        mood,
+        text: reactionText(customer, mood),
+        life: 2.2
+      });
     }
 
     function paceFactor() {
@@ -407,6 +426,24 @@
       const now = audio.context.currentTime;
       const gain = audio.context.createGain();
       gain.connect(audio.sfxGain);
+      if (kind === "grind") {
+        const buffer = audio.context.createBuffer(1, audio.context.sampleRate * 0.42, audio.context.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < data.length; i += 1) data[i] = (Math.random() * 2 - 1) * 0.28;
+        const noise = audio.context.createBufferSource();
+        const filter = audio.context.createBiquadFilter();
+        filter.type = "bandpass";
+        filter.frequency.value = 280;
+        filter.Q.value = 0.8;
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.18, now + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.38);
+        noise.buffer = buffer;
+        noise.connect(filter).connect(gain);
+        noise.start(now);
+        noise.stop(now + 0.4);
+        return;
+      }
       if (kind === "steam") {
         const buffer = audio.context.createBuffer(1, audio.context.sampleRate * 0.35, audio.context.sampleRate);
         const data = buffer.getChannelData(0);
@@ -424,8 +461,68 @@
         noise.stop(now + 0.34);
         return;
       }
+      if (kind === "water") {
+        const buffer = audio.context.createBuffer(1, audio.context.sampleRate * 0.28, audio.context.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < data.length; i += 1) data[i] = (Math.random() * 2 - 1) * 0.12;
+        const noise = audio.context.createBufferSource();
+        const filter = audio.context.createBiquadFilter();
+        filter.type = "highpass";
+        filter.frequency.value = 1200;
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.14, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.26);
+        noise.buffer = buffer;
+        noise.connect(filter).connect(gain);
+        noise.start(now);
+        noise.stop(now + 0.28);
+        return;
+      }
+      if (kind === "syrup") {
+        const osc = audio.context.createOscillator();
+        osc.type = "sine";
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.09, now + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
+        osc.connect(gain);
+        osc.frequency.setValueAtTime(460, now);
+        osc.frequency.exponentialRampToValueAtTime(180, now + 0.18);
+        osc.start(now);
+        osc.stop(now + 0.2);
+        return;
+      }
+      if (kind === "foam") {
+        const osc = audio.context.createOscillator();
+        osc.type = "triangle";
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.1, now + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+        osc.connect(gain);
+        osc.frequency.setValueAtTime(520, now);
+        osc.frequency.exponentialRampToValueAtTime(760, now + 0.16);
+        osc.start(now);
+        osc.stop(now + 0.18);
+        return;
+      }
+      if (kind === "whip") {
+        const buffer = audio.context.createBuffer(1, audio.context.sampleRate * 0.24, audio.context.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < data.length; i += 1) data[i] = (Math.random() * 2 - 1) * 0.18;
+        const noise = audio.context.createBufferSource();
+        const filter = audio.context.createBiquadFilter();
+        filter.type = "bandpass";
+        filter.frequency.value = 860;
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.13, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+        noise.buffer = buffer;
+        noise.connect(filter).connect(gain);
+        noise.start(now);
+        noise.stop(now + 0.24);
+        return;
+      }
       const osc = audio.context.createOscillator();
-      osc.type = { serve: "triangle", arrive: "sine", error: "sawtooth", leave: "square", trash: "square", cup: "triangle", start: "triangle", stop: "triangle" }[kind] || "square";
+      osc.type = { serve: "triangle", arrive: "sine", error: "sawtooth", leave: "square", trash: "square", cup: "triangle", start: "triangle", stop: "triangle", happy: "sine", angry: "square" }[kind] || "square";
       const cfg = {
         brew: { f: 180, e: 120, d: 0.2, v: 0.14 },
         cup: { f: 640, e: 760, d: 0.12, v: 0.12 },
@@ -435,7 +532,9 @@
         leave: { f: 180, e: 140, d: 0.18, v: 0.09 },
         trash: { f: 120, e: 90, d: 0.15, v: 0.09 },
         start: { f: 440, e: 660, d: 0.22, v: 0.15 },
-        stop: { f: 420, e: 220, d: 0.28, v: 0.12 }
+        stop: { f: 420, e: 220, d: 0.28, v: 0.12 },
+        happy: { f: 620, e: 980, d: 0.24, v: 0.12 },
+        angry: { f: 210, e: 150, d: 0.24, v: 0.11 }
       }[kind] || { f: 240, e: 280, d: 0.15, v: 0.08 };
       gain.gain.setValueAtTime(0.0001, now);
       gain.gain.exponentialRampToValueAtTime(cfg.v, now + 0.02);
@@ -476,7 +575,13 @@
         sfx("cup");
       } else if (state.activeCup) {
         state.activeCup.steps.push(actionKey);
-        sfx(actionKey === "steam_milk" || actionKey === "foam_cap" || actionKey === "microfoam" ? "steam" : "brew");
+        if (actionKey === "grind") sfx("grind");
+        else if (actionKey === "hot_water") sfx("water");
+        else if (actionKey === "mocha_sauce") sfx("syrup");
+        else if (actionKey === "whip") sfx("whip");
+        else if (actionKey === "foam_cap" || actionKey === "microfoam") sfx("foam");
+        else if (actionKey === "steam_milk") sfx("steam");
+        else sfx("brew");
       }
       emitParticles(player.x, player.y, actionKey === "steam_milk" ? "#dffcff" : "#ffbc57");
       player.task = null;
@@ -502,6 +607,7 @@
       if (perfect) {
         const patienceRatio = customer.patience / customer.patienceMax;
         const reward = Math.round(customer.offerPrice * 10 * (1 + patienceRatio * 0.5) * state.combo);
+        pushReaction(customer, Data.queueTiles[0], "happy");
         state.score += reward * 10;
         state.coins += reward;
         state.combo = Math.min(state.combo + 0.25, 4);
@@ -510,6 +616,7 @@
         state.customers.shift();
         state.activeCup = null;
         sfx("serve");
+        sfx("happy");
         speak(`Perfect ${recipe.name}! +${reward}`, "#8be28f");
       } else {
         state.combo = 1;
@@ -548,6 +655,7 @@
       state.spawnCooldown = 2.6;
       state.activeCup = null;
       state.customers = [];
+      state.reactions = [];
       state.particles = [];
       state.floatingText = [];
       player.x = 4;
@@ -571,6 +679,7 @@
       state.activeCup = null;
       state.keys.clear();
       player.task = null;
+      state.reactions = [];
       sfx("stop");
       speak("Shift stopped", "#ffbc57");
       notify(true);
@@ -1275,6 +1384,17 @@
       ctx.fillStyle = "#9ab1bc"; ctx.font = "12px Trebuchet MS"; ctx.fillText(b, x + 12, y + 34);
     }
 
+    function drawReactionBubble(item) {
+      const fill = item.mood === "happy" ? "rgba(18,39,28,0.94)" : "rgba(52,18,22,0.94)";
+      const accent = item.mood === "happy" ? "#8be28f" : "#ff687b";
+      roundedRect(item.x, item.y, 118, 34, 14, fill);
+      ctx.strokeStyle = "rgba(255,255,255,0.08)";
+      ctx.strokeRect(item.x, item.y, 118, 34);
+      ctx.fillStyle = accent;
+      ctx.font = "bold 12px Trebuchet MS";
+      ctx.fillText(item.text, item.x + 10, item.y + 21);
+    }
+
     function render() {
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
@@ -1324,6 +1444,11 @@
         ctx.arc(p.x, p.y - 84, 28, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * progress);
         ctx.stroke();
       }
+      state.reactions.forEach((item) => {
+        ctx.globalAlpha = Math.min(1, item.life);
+        drawReactionBubble(item);
+        ctx.globalAlpha = 1;
+      });
       state.particles.forEach((particle) => {
         ctx.globalAlpha = Math.max(0, particle.life); ctx.fillStyle = particle.color; ctx.beginPath(); ctx.arc(particle.x, particle.y, 4, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
       });
@@ -1350,9 +1475,11 @@
         });
         while (state.customers[0] && state.customers[0].patience <= 0) {
           const unhappy = state.customers.shift();
+          pushReaction(unhappy, Data.queueTiles[0], "angry");
           state.combo = 1;
           state.reputation = Math.max(0, state.reputation - 10);
           sfx("leave");
+          sfx("angry");
           speak(`${unhappy.name} left`, "#ff687b");
         }
         if (state.shiftRemaining <= 0 || state.reputation <= 0) {
@@ -1392,6 +1519,11 @@
 
       state.particles = state.particles.filter((particle) => {
         particle.life -= dt; particle.x += particle.vx * dt; particle.y += particle.vy * dt; particle.vy += 100 * dt; return particle.life > 0;
+      });
+      state.reactions = state.reactions.filter((item) => {
+        item.life -= dt;
+        item.y -= 12 * dt;
+        return item.life > 0;
       });
       state.floatingText = state.floatingText.filter((item) => {
         item.life -= dt; item.y -= 24 * dt; return item.life > 0;

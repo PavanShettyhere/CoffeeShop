@@ -505,7 +505,6 @@
         }
         if (menuRow) {
           setText(menuRow.priceNode, entry.priceLabel);
-          ui.recipeList.appendChild(menuRow.row);
         }
       });
     }

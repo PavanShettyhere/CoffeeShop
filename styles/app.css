@@ -505,9 +505,34 @@ button:disabled {
   min-height: 0;
 }
 
+.station-card,
+.cup-card,
+.queue-card,
+.menu-card {
+  display: grid;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.station-card {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.cup-card {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.action-list,
+.cup-progress {
+  min-height: 0;
+  overflow: auto;
+  padding-right: 6px;
+  align-content: start;
+  overscroll-behavior: contain;
+}
+
 .menu-card {
   min-height: 0;
-  display: grid;
   grid-template-rows: auto minmax(0, 1fr);
 }
 
@@ -521,7 +546,6 @@ button:disabled {
 }
 
 .queue-card {
-  display: grid;
   grid-template-rows: auto minmax(0, 1fr);
 }
 
@@ -864,6 +888,8 @@ button:disabled {
 }
 
 .swatch-row::-webkit-scrollbar,
+.action-list::-webkit-scrollbar,
+.cup-progress::-webkit-scrollbar,
 .recipe-list::-webkit-scrollbar,
 .orders-list::-webkit-scrollbar {
   width: 8px;
@@ -871,6 +897,8 @@ button:disabled {
 }
 
 .swatch-row::-webkit-scrollbar-thumb,
+.action-list::-webkit-scrollbar-thumb,
+.cup-progress::-webkit-scrollbar-thumb,
 .recipe-list::-webkit-scrollbar-thumb,
 .orders-list::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.14);
