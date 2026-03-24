@@ -424,6 +424,7 @@
       ui.restaurantTableStyle.value = restaurantDraft.tableStyle;
       ui.restaurantMachineFinish.value = restaurantDraft.machineFinish;
       ui.restaurantCounterStyle.value = restaurantDraft.counterStyle;
+      game.setRestaurantProfile(restaurantDraft);
       renderRestaurantSummary(restaurantDraft);
       game.renderRestaurantPreview(ui.restaurantCanvas);
     }

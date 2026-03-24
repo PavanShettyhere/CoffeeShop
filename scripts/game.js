@@ -1153,6 +1153,120 @@
       previewCtx.restore();
     }
 
+    function renderRestaurantPreview(targetCanvas) {
+      const previewCtx = targetCanvas.getContext("2d");
+      const width = targetCanvas.width;
+      const height = targetCanvas.height;
+      const wallTheme = getWallTheme();
+      const floorTheme = getFloorTheme();
+      const tableColor = getTableColor();
+      const counterStyle = getCounterStyle();
+      previewCtx.clearRect(0, 0, width, height);
+      const grad = previewCtx.createLinearGradient(0, 0, 0, height);
+      grad.addColorStop(0, "#29495e");
+      grad.addColorStop(1, "#101a24");
+      previewCtx.fillStyle = grad;
+      previewCtx.fillRect(0, 0, width, height);
+
+      const previewOrigin = { x: width / 2, y: 96 };
+      const tileW = 42;
+      const tileH = 22;
+      function previewIso(tileX, tileY) {
+        return {
+          x: previewOrigin.x + (tileX - tileY) * (tileW / 2),
+          y: previewOrigin.y + (tileX + tileY) * (tileH / 2)
+        };
+      }
+
+      for (let i = 0; i < GRID_W - 1; i += 1) {
+        const p = previewIso(i, 0);
+        previewCtx.beginPath();
+        previewCtx.moveTo(p.x, p.y);
+        previewCtx.lineTo(p.x + tileW / 2, p.y + tileH / 2);
+        previewCtx.lineTo(p.x + tileW / 2, p.y - 54);
+        previewCtx.lineTo(p.x, p.y - 70);
+        previewCtx.closePath();
+        previewCtx.fillStyle = i % 2 === 0 ? wallTheme.top : shade(wallTheme.top, 8);
+        previewCtx.fill();
+        previewCtx.beginPath();
+        previewCtx.moveTo(p.x, p.y);
+        previewCtx.lineTo(p.x - tileW / 2, p.y + tileH / 2);
+        previewCtx.lineTo(p.x - tileW / 2, p.y - 40);
+        previewCtx.lineTo(p.x, p.y - 70);
+        previewCtx.closePath();
+        previewCtx.fillStyle = i % 2 === 0 ? wallTheme.left : wallTheme.right;
+        previewCtx.fill();
+      }
+
+      for (let y = 0; y < GRID_H; y += 1) {
+        for (let x = 0; x < GRID_W; x += 1) {
+          const p = previewIso(x, y);
+          previewCtx.beginPath();
+          previewCtx.moveTo(p.x, p.y);
+          previewCtx.lineTo(p.x + tileW / 2, p.y + tileH / 2);
+          previewCtx.lineTo(p.x, p.y + tileH);
+          previewCtx.lineTo(p.x - tileW / 2, p.y + tileH / 2);
+          previewCtx.closePath();
+          previewCtx.fillStyle = x === 0 || y === 0 || x === GRID_W - 1 || y === GRID_H - 1
+            ? floorTheme.edge
+            : ((x + y) % 2 === 0 ? floorTheme.even : floorTheme.odd);
+          previewCtx.fill();
+          previewCtx.strokeStyle = "rgba(255,255,255,0.05)";
+          previewCtx.stroke();
+        }
+      }
+
+      getTableTiles().forEach((tile, index) => {
+        const p = previewIso(tile.x, tile.y);
+        previewCtx.fillStyle = "rgba(0,0,0,0.16)";
+        previewCtx.beginPath();
+        previewCtx.ellipse(p.x, p.y + 10, 20, 8, 0, 0, Math.PI * 2);
+        previewCtx.fill();
+        previewCtx.fillStyle = index % 2 === 0 ? tableColor : shade(tableColor, -8);
+        previewCtx.beginPath();
+        previewCtx.ellipse(p.x, p.y - 2, 20, 8, 0, 0, Math.PI * 2);
+        previewCtx.fill();
+        previewCtx.fillRect(p.x - 3, p.y - 2, 6, 18);
+      });
+
+      Data.stations.forEach((station) => {
+        const p = previewIso(station.tile.x, station.tile.y);
+        const stationSkin = getStationSkin(station);
+        const baseColor = station.type === "counter" ? counterStyle.color : stationSkin.color;
+        previewCtx.fillStyle = baseColor;
+        previewCtx.beginPath();
+        previewCtx.moveTo(p.x, p.y - 30);
+        previewCtx.lineTo(p.x + 18, p.y - 20);
+        previewCtx.lineTo(p.x + 18, p.y + 8);
+        previewCtx.lineTo(p.x, p.y - 2);
+        previewCtx.closePath();
+        previewCtx.fill();
+        previewCtx.beginPath();
+        previewCtx.moveTo(p.x, p.y - 30);
+        previewCtx.lineTo(p.x - 18, p.y - 20);
+        previewCtx.lineTo(p.x - 18, p.y + 8);
+        previewCtx.lineTo(p.x, p.y - 2);
+        previewCtx.closePath();
+        previewCtx.fillStyle = shade(baseColor, -18);
+        previewCtx.fill();
+        previewCtx.fillStyle = shade(baseColor, 16);
+        previewCtx.fillRect(p.x - 14, p.y - 42, 28, 12);
+        previewCtx.fillStyle = station.type === "counter" ? counterStyle.accent : stationSkin.accent;
+        previewCtx.fillRect(p.x - 8, p.y - 37, 16, 4);
+      });
+
+      previewCtx.fillStyle = "rgba(255,255,255,0.08)";
+      previewCtx.fillRect(16, 16, width - 32, height - 32);
+      previewCtx.strokeStyle = "rgba(255,255,255,0.08)";
+      previewCtx.strokeRect(16, 16, width - 32, height - 32);
+      previewCtx.fillStyle = "#eff6f8";
+      previewCtx.font = "bold 13px Trebuchet MS";
+      previewCtx.fillText("Live Restaurant Preview", 28, 38);
+      previewCtx.fillStyle = "#9cb3be";
+      previewCtx.font = "12px Trebuchet MS";
+      previewCtx.fillText("Walls, tables, machines, and counter update here as you edit.", 28, 56);
+    }
+
     function drawSpeechBubble(x, y, a, b) {
       roundedRect(x, y, 132, 48, 14, "rgba(7,15,23,0.92)");
       ctx.strokeStyle = "rgba(255,255,255,0.08)";
@@ -1351,11 +1465,13 @@
       setView,
       setPlayerProfile,
       getPlayerProfile,
-      setRestaurantProfile,
-      getRestaurantProfile,
-      renderAvatarPreview,
-      doAction,
-      getSnapshot: snapshot,
+        setRestaurantProfile,
+        getRestaurantProfile,
+        renderAvatarPreview,
+        renderRestaurantPreview,
+        toggleMusic,
+        doAction,
+        getSnapshot: snapshot,
       formatEuro,
       getLivePrice,
       getDateParts,
