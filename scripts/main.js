@@ -24,6 +24,7 @@
       start: document.getElementById("startButton"),
       stop: document.getElementById("stopButton"),
       sound: document.getElementById("soundButton"),
+      music: document.getElementById("musicButton"),
       trash: document.getElementById("trashButton"),
       moreMenu: document.querySelector(".more-menu"),
       gameTab: document.getElementById("gameTabButton"),
@@ -52,6 +53,7 @@
       sourceList: document.getElementById("sourceList"),
       canvas: document.getElementById("gameCanvas"),
       avatarCanvas: document.getElementById("avatarCanvas"),
+      restaurantCanvas: document.getElementById("restaurantCanvas"),
       avatarForm: document.getElementById("avatarForm"),
       avatarGender: document.getElementById("avatarGender"),
       avatarCap: document.getElementById("avatarCap"),
@@ -423,11 +425,13 @@
       ui.restaurantMachineFinish.value = restaurantDraft.machineFinish;
       ui.restaurantCounterStyle.value = restaurantDraft.counterStyle;
       renderRestaurantSummary(restaurantDraft);
+      game.renderRestaurantPreview(ui.restaurantCanvas);
     }
 
     function applyRestaurantDraft(save) {
       game.setRestaurantProfile(restaurantDraft);
       renderRestaurantSummary(restaurantDraft);
+      game.renderRestaurantPreview(ui.restaurantCanvas);
       if (save) saveRestaurantProfile(restaurantDraft);
     }
 
@@ -584,22 +588,18 @@
 
     function renderOverlay(snapshot) {
       if (snapshot.gameOver) {
-        ui.overlay.innerHTML = `<strong>${snapshot.reputation <= 0 ? "The cafe lost confidence" : "Doors closed for today"}</strong><span>Score ${snapshot.score}, coins ${snapshot.coins}, served ${snapshot.customersServed}, rank ${snapshot.rank}. Start Shift to run a new day.</span>`;
-        ui.overlay.dataset.state = "alert";
+        ui.overlay.innerHTML = `<div class="eyebrow">Shift Complete</div><h2>${snapshot.reputation <= 0 ? "The cafe lost confidence" : "Doors closed for today"}</h2><p>Score ${snapshot.score}, coins ${snapshot.coins}, served ${snapshot.customersServed}, rank ${snapshot.rank}.</p><p class="overlay-tip">Start Shift to run a new day.</p>`;
         return;
       }
       if (!snapshot.started) {
-        ui.overlay.innerHTML = "<strong>Open The Cafe</strong><span>Move through the room, build the requested drinks on the correct machines, and serve them at the front counter. Start Shift unlocks audio and begins the customer rush.</span>";
-        ui.overlay.dataset.state = "default";
+        ui.overlay.innerHTML = `<div class="eyebrow">Shift Briefing</div><h2>Open The Cafe</h2><p>Move through the room, build the requested drinks on the correct machines, and serve them at the front counter.</p><p class="overlay-tip">Start Shift unlocks audio and begins the customer rush.</p>`;
         return;
       }
       if (snapshot.paused) {
-        ui.overlay.innerHTML = "<strong>Shift paused</strong><span>The live queue is paused while you are in a studio or trainee view. Switch back to Game Zone to continue.</span>";
-        ui.overlay.dataset.state = "alert";
+        ui.overlay.innerHTML = `<div class="eyebrow">Training Mode</div><h2>Shift paused</h2><p>The live queue is paused while you are in a studio or trainee view.</p><p class="overlay-tip">Switch back to Game Zone to continue.</p>`;
         return;
       }
-      ui.overlay.innerHTML = "<strong>Shift live</strong><span>Work the stations on the left wall, finish the drink, and serve the first customer at the front counter.</span>";
-      ui.overlay.dataset.state = "live";
+      ui.overlay.innerHTML = `<div class="eyebrow">Shift Live</div><h2>Open The Cafe</h2><p>Work the stations on the left wall, finish the drink, and serve the first customer at the front counter.</p><p class="overlay-tip">Music and room sounds can be toggled separately above.</p>`;
     }
 
     function renderState(snapshot) {
@@ -611,6 +611,7 @@
       ui.combo.textContent = snapshot.comboLabel;
       ui.rank.textContent = snapshot.rank;
       ui.sound.textContent = `Sound: ${snapshot.soundEnabled ? "On" : "Off"}`;
+      ui.music.textContent = `Music: ${snapshot.musicEnabled ? "On" : "Off"}`;
       ui.stop.disabled = !snapshot.started && !snapshot.gameOver && !snapshot.paused;
       renderActions(snapshot);
       renderCup(snapshot);
@@ -621,6 +622,7 @@
     ui.start.addEventListener("click", game.startShift);
     ui.stop.addEventListener("click", game.stopShift);
     ui.sound.addEventListener("click", game.toggleSound);
+    ui.music.addEventListener("click", game.toggleMusic);
     ui.trash.addEventListener("click", game.trashCup);
     ui.gameTab.addEventListener("click", () => setView("game"));
     ui.trainingTab.addEventListener("click", () => setView("training"));

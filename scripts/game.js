@@ -96,6 +96,7 @@
       keys: new Set(),
       uiTick: 0,
       soundEnabled: true,
+      musicEnabled: true,
       renderClock: 0,
       playerProfile: cloneProfile(Data.avatarOptions.defaultProfile),
       restaurantProfile: cloneRestaurantProfile(Data.restaurantOptions.defaultProfile)
@@ -200,6 +201,7 @@
         comboLabel: `x${state.combo.toFixed(2).replace(/\.00$/, "")}`,
         rank: getRank(state.score),
         soundEnabled: state.soundEnabled,
+        musicEnabled: state.musicEnabled,
         playerProfile: cloneProfile(state.playerProfile),
         restaurantProfile: cloneRestaurantProfile(state.restaurantProfile),
         currentStation: station,
@@ -303,25 +305,33 @@
 
     function initAudio() {
       if (audio) {
-        audio.enabled = true;
+        audio.soundEnabled = true;
+        audio.musicEnabled = true;
         state.soundEnabled = true;
+        state.musicEnabled = true;
         if (audio.context.state === "suspended") audio.context.resume();
         return;
       }
       const context = new (window.AudioContext || window.webkitAudioContext)();
       const master = context.createGain();
-      master.gain.value = 0.34;
+      master.gain.value = 0.5;
       master.connect(context.destination);
+      const sfxGain = context.createGain();
+      sfxGain.gain.value = 0.8;
+      sfxGain.connect(master);
+      const musicGain = context.createGain();
+      musicGain.gain.value = 0.7;
+      musicGain.connect(master);
       const lowpass = context.createBiquadFilter();
       lowpass.type = "lowpass";
-      lowpass.frequency.value = 1600;
+      lowpass.frequency.value = 1900;
       lowpass.Q.value = 0.6;
-      lowpass.connect(master);
+      lowpass.connect(musicGain);
 
       function playSoftPad(now, notes) {
         const chordGain = context.createGain();
         chordGain.gain.setValueAtTime(0.0001, now);
-        chordGain.gain.exponentialRampToValueAtTime(0.03, now + 0.45);
+        chordGain.gain.exponentialRampToValueAtTime(0.06, now + 0.4);
         chordGain.gain.exponentialRampToValueAtTime(0.0001, now + 3.4);
         chordGain.connect(lowpass);
 
@@ -348,6 +358,18 @@
         shimmerGain.connect(lowpass);
         shimmer.start(now + 0.9);
         shimmer.stop(now + 2.45);
+
+        const bass = context.createOscillator();
+        const bassGain = context.createGain();
+        bass.type = "sine";
+        bass.frequency.setValueAtTime(notes[0] / 2, now);
+        bassGain.gain.setValueAtTime(0.0001, now);
+        bassGain.gain.exponentialRampToValueAtTime(0.028, now + 0.2);
+        bassGain.gain.exponentialRampToValueAtTime(0.0001, now + 2.8);
+        bass.connect(bassGain);
+        bassGain.connect(lowpass);
+        bass.start(now);
+        bass.stop(now + 2.9);
       }
 
       const padChords = [
@@ -358,19 +380,33 @@
       ];
       let padIndex = 0;
       const ambienceTimer = window.setInterval(() => {
-        if (!audio || !audio.enabled || !state.started) return;
+        if (!audio || !audio.musicEnabled || !state.started) return;
         padIndex = (padIndex + 1) % padChords.length;
         playSoftPad(context.currentTime, padChords[padIndex]);
       }, 3200);
-      audio = { context, master, lowpass, ambienceTimer, enabled: true, padChords, get padIndex() { return padIndex; }, set padIndex(v) { padIndex = v; }, playSoftPad };
+      audio = {
+        context,
+        master,
+        sfxGain,
+        musicGain,
+        lowpass,
+        ambienceTimer,
+        soundEnabled: true,
+        musicEnabled: true,
+        padChords,
+        get padIndex() { return padIndex; },
+        set padIndex(v) { padIndex = v; },
+        playSoftPad
+      };
       state.soundEnabled = true;
+      state.musicEnabled = true;
     }
 
     function sfx(kind) {
-      if (!audio || !audio.enabled) return;
+      if (!audio || !audio.soundEnabled) return;
       const now = audio.context.currentTime;
       const gain = audio.context.createGain();
-      gain.connect(audio.master);
+      gain.connect(audio.sfxGain);
       if (kind === "steam") {
         const buffer = audio.context.createBuffer(1, audio.context.sampleRate * 0.35, audio.context.sampleRate);
         const data = buffer.getChannelData(0);
@@ -519,7 +555,7 @@
       player.targetX = 4;
       player.targetY = 5;
       player.task = null;
-      if (audio && audio.enabled) {
+      if (audio && audio.musicEnabled) {
         audio.playSoftPad(audio.context.currentTime, audio.padChords[audio.padIndex]);
       }
       sfx("start");
@@ -548,16 +584,32 @@
     }
 
     function toggleSound() {
-      if (!audio) initAudio();
-      else {
-        audio.enabled = !audio.enabled;
-        state.soundEnabled = audio.enabled;
-        if (audio.enabled && audio.context.state === "suspended") audio.context.resume();
-      }
-      if (state.soundEnabled && state.started && audio) {
-        audio.playSoftPad(audio.context.currentTime, audio.padChords[audio.padIndex]);
+      if (!audio) {
+        initAudio();
+        audio.soundEnabled = false;
+        state.soundEnabled = false;
+      } else {
+        audio.soundEnabled = !audio.soundEnabled;
+        state.soundEnabled = audio.soundEnabled;
+        if ((audio.soundEnabled || audio.musicEnabled) && audio.context.state === "suspended") audio.context.resume();
       }
       if (state.soundEnabled) sfx("start");
+      notify(true);
+    }
+
+    function toggleMusic() {
+      if (!audio) {
+        initAudio();
+        audio.musicEnabled = false;
+        state.musicEnabled = false;
+      } else {
+        audio.musicEnabled = !audio.musicEnabled;
+        state.musicEnabled = audio.musicEnabled;
+        if ((audio.soundEnabled || audio.musicEnabled) && audio.context.state === "suspended") audio.context.resume();
+      }
+      if (state.musicEnabled && state.started && audio) {
+        audio.playSoftPad(audio.context.currentTime, audio.padChords[audio.padIndex]);
+      }
       notify(true);
     }
 
