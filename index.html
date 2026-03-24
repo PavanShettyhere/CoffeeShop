@@ -4,140 +4,121 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Velvet Pour</title>
-  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./styles/app.css">
 </head>
 <body>
   <div class="app-shell">
-    <aside class="panel branding-panel">
-      <div class="eyebrow">Boutique Barista Sim</div>
-      <h1>Velvet Pour</h1>
-      <p class="lead">
-        Run a premium pixel coffee shop. Move through an isometric cafe, learn each recipe in the trainee zone,
-        and survive the live order rush.
-      </p>
+    <header class="topbar panel">
+      <div class="brand-block">
+        <div class="eyebrow">Virtual Coffee Shop Game</div>
+        <h1>Velvet Pour</h1>
+        <p>Habbo-inspired cafe management with a cleaner game layout, training mode, and live menu board.</p>
+      </div>
+
+      <div class="topbar-controls">
+        <div class="view-switch">
+          <button id="gameTabButton" class="tab-button is-active" type="button">Game Zone</button>
+          <button id="trainingTabButton" class="tab-button" type="button">Coffee Trainee Zone</button>
+        </div>
+
+        <div class="button-row">
+          <button id="startButton" class="primary-button" type="button">Start Shift</button>
+          <button id="stopButton" class="secondary-button" type="button">Stop Shift</button>
+          <button id="soundButton" class="secondary-button" type="button">Sound: On</button>
+          <button id="trashButton" class="secondary-button" type="button">Trash Cup</button>
+        </div>
+      </div>
 
       <div class="stat-grid">
-        <div class="stat-card">
-          <span>Score</span>
-          <strong id="scoreValue">0</strong>
-        </div>
-        <div class="stat-card">
-          <span>Coins</span>
-          <strong id="coinsValue">0</strong>
-        </div>
-        <div class="stat-card">
-          <span>Rep</span>
-          <strong id="reputationValue">100</strong>
-        </div>
-        <div class="stat-card">
-          <span>Shift</span>
-          <strong id="shiftValue">03:00</strong>
-        </div>
+        <div class="stat-card"><span>Score</span><strong id="scoreValue">0</strong></div>
+        <div class="stat-card"><span>Coins</span><strong id="coinsValue">0</strong></div>
+        <div class="stat-card"><span>Reputation</span><strong id="reputationValue">100</strong></div>
+        <div class="stat-card"><span>Shift</span><strong id="shiftValue">03:00</strong></div>
+        <div class="stat-card"><span>Served</span><strong id="servedValue">0</strong></div>
+        <div class="stat-card"><span>Combo</span><strong id="comboValue">x1</strong></div>
+        <div class="stat-card stat-wide"><span>Rank</span><strong id="rankValue">Apprentice</strong></div>
       </div>
+    </header>
 
-      <div class="button-row">
-        <button id="startButton" class="primary-button">Start Shift</button>
-        <button id="stopButton" class="secondary-button">Stop Shift</button>
-        <button id="soundButton" class="secondary-button">Sound: On</button>
-        <button id="trashButton" class="secondary-button">Trash Cup</button>
-      </div>
+    <div class="content-grid">
+      <main class="main-column">
+        <section id="gameView" class="view-panel is-active">
+          <div class="stage-shell panel">
+            <div class="menu-board" id="menuBoard">
+              <div class="menu-board__header">
+                <span>HOT DRINKS</span>
+                <span id="boardClock">00:00</span>
+              </div>
+              <div class="menu-board__meta">
+                <span id="boardDay">MONDAY</span>
+                <span id="boardDate">24 MAR 2026</span>
+              </div>
+              <div id="boardRows" class="menu-board__rows"></div>
+            </div>
 
-      <div class="quick-guide glass-card">
-        <h2>Floor Flow</h2>
-        <ul>
-          <li>Move with click, <code>WASD</code>, or arrow keys.</li>
-          <li>Use the correct machine order for each coffee.</li>
-          <li>Check the live euro menu board inside the shop.</li>
-          <li>Open the trainee zone to study every recipe step.</li>
-        </ul>
-      </div>
-    </aside>
+            <div class="stage-overlay overlay-card" id="overlayCard">
+              <div class="eyebrow">Shift Briefing</div>
+              <h2>Open The Cafe</h2>
+              <p>Move through the room, build the requested drinks on the correct machines, and serve them at the front counter.</p>
+              <p class="overlay-tip">Start Shift unlocks audio and begins the customer rush.</p>
+            </div>
 
-    <main class="game-column">
-      <section class="hero-bar glass-card">
-        <div class="hero-copy">
-          <div class="eyebrow">Modern Isometric Cafe</div>
-          <h2>Craft the queue, learn the menu, own the room</h2>
-        </div>
-        <div class="hero-actions">
-          <div class="view-switch">
-            <button id="gameTabButton" class="tab-button is-active">Game Zone</button>
-            <button id="trainingTabButton" class="tab-button">Coffee Trainee Zone</button>
+            <canvas id="gameCanvas" width="1440" height="960" aria-label="Velvet Pour game world"></canvas>
+
+            <div class="controls-card glass-card">
+              <div class="eyebrow">Controls</div>
+              <p>Move with click, <code>WASD</code>, or arrow keys. Use machine actions with the buttons on the right or press <code>1</code>, <code>2</code>, <code>3</code>.</p>
+            </div>
           </div>
-          <div class="ticker">
-            <div><span>Customers served</span><strong id="servedValue">0</strong></div>
-            <div><span>Combo</span><strong id="comboValue">x1</strong></div>
-            <div><span>Day rank</span><strong id="rankValue">Rising Roaster</strong></div>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <section id="gameView" class="panel view-panel is-active">
-        <div class="canvas-wrap">
-          <canvas id="gameCanvas" width="1400" height="900" aria-label="Velvet Pour game world"></canvas>
-          <div class="overlay-card" id="overlayCard">
-            <div class="eyebrow">Shift briefing</div>
-            <h3>Open the cafe</h3>
-            <p>
-              Customers will arrive with espresso-based orders. Use the right cup, the right machine,
-              and the right procedure to serve them before their patience runs out.
-            </p>
-            <p class="overlay-tip">Start Shift unlocks audio and begins the order rush.</p>
-          </div>
-        </div>
-      </section>
-
-      <section id="trainingView" class="panel view-panel training-view">
-        <div class="training-layout">
+        <section id="trainingView" class="view-panel panel training-panel">
           <div class="training-hero glass-card">
             <div class="eyebrow">Coffee Trainee Zone</div>
-            <h2>Study every machine, cup, and pour sequence before the rush starts</h2>
-            <p>
-              Learn the order of operations for each drink, the tools it needs, and what makes it different from the others.
-              This page is meant to feel like the staff training wall in the back of the cafe.
-            </p>
+            <h2>Learn every cup, machine, and sequence before the shift starts</h2>
+            <p>Review the procedure for each coffee, the tools it needs, and what makes it different. This area is separate from the rush so it is easy to study.</p>
           </div>
 
-          <div class="training-grid" id="traineeGrid"></div>
+          <div id="trainingGrid" class="training-grid"></div>
 
-          <div class="glass-card training-sources">
+          <div class="glass-card source-card">
             <div class="eyebrow">Recipe Notes</div>
-            <p id="sourceSummary">
-              Recipes are modeled from current coffee references and official Starbucks At Home espresso drink procedures.
-            </p>
+            <p>Recipes are modeled from current coffee references and official Starbucks At Home espresso drink procedures.</p>
             <div id="sourceList" class="source-list"></div>
           </div>
-        </div>
-      </section>
-    </main>
+        </section>
+      </main>
 
-    <aside class="panel sidebar">
-      <section class="glass-card station-card">
-        <div class="eyebrow">Nearby Station</div>
-        <h2 id="stationTitle">Walk up to a machine</h2>
-        <p id="stationDescription">Machines expose different drink actions when you are in range.</p>
-        <div class="action-list" id="actionList"></div>
-      </section>
+      <aside class="sidebar panel">
+        <section class="glass-card">
+          <div class="eyebrow">Nearby Station</div>
+          <h2 id="stationTitle">Walk up to a machine</h2>
+          <p id="stationDescription">Each machine exposes the actions you can perform there.</p>
+          <div id="actionList" class="action-list"></div>
+        </section>
 
-      <section class="glass-card cup-card">
-        <div class="eyebrow">Current Cup</div>
-        <h2 id="cupTitle">No drink in hand</h2>
-        <p id="cupSubtitle">Grab a cup from the cup wall to start a new order.</p>
-        <div class="cup-progress" id="cupProgress"></div>
-      </section>
+        <section class="glass-card">
+          <div class="eyebrow">Current Cup</div>
+          <h2 id="cupTitle">No drink in hand</h2>
+          <p id="cupSubtitle">Grab a cup from the cup wall to begin.</p>
+          <div id="cupProgress" class="cup-progress"></div>
+        </section>
 
-      <section class="glass-card orders-card">
-        <div class="eyebrow">Order Queue</div>
-        <div id="ordersList" class="orders-list"></div>
-      </section>
+        <section class="glass-card grow-card">
+          <div class="eyebrow">Customer Queue</div>
+          <div id="ordersList" class="orders-list"></div>
+        </section>
 
-      <section class="glass-card recipe-card">
-        <div class="eyebrow">Coffee Menu</div>
-        <div id="recipeList" class="recipe-list compact-list"></div>
-      </section>
-    </aside>
+        <section class="glass-card menu-card">
+          <div class="eyebrow">Coffee Menu</div>
+          <div id="recipeList" class="recipe-list"></div>
+        </section>
+      </aside>
+    </div>
   </div>
 
-  <script src="./script.js" defer></script>
+  <script src="./scripts/data.js" defer></script>
+  <script src="./scripts/game.js" defer></script>
+  <script src="./scripts/main.js" defer></script>
 </body>
 </html>
