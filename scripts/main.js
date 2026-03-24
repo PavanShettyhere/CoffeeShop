@@ -48,6 +48,39 @@
     const cache = { actionSig: "", cupSig: "", orderSig: "", boardRows: {}, menuRows: {} };
     const game = Game.createGame({ canvas: ui.canvas, onStateChange: renderState });
 
+    function setFlipText(node, value) {
+      const nextText = String(value);
+      if (!node) return;
+      if (!node.classList.contains("flip-card")) node.classList.add("flip-card");
+      const current = node.querySelector(".flip-card__face.is-current");
+      if (!current) {
+        node.textContent = "";
+        const face = document.createElement("span");
+        face.className = "flip-card__face is-current";
+        face.textContent = nextText;
+        node.appendChild(face);
+        node.dataset.value = nextText;
+        return;
+      }
+      if (node.dataset.value === nextText && !node.classList.contains("is-animating")) return;
+      node.dataset.value = nextText;
+      const staleNext = node.querySelector(".flip-card__face.is-next");
+      if (staleNext) staleNext.remove();
+      const next = document.createElement("span");
+      next.className = "flip-card__face is-next";
+      next.textContent = nextText;
+      node.appendChild(next);
+      window.requestAnimationFrame(() => {
+        node.classList.add("is-animating");
+      });
+      next.addEventListener("animationend", function finish() {
+        if (current.parentNode === node) current.remove();
+        next.classList.remove("is-next");
+        next.classList.add("is-current");
+        node.classList.remove("is-animating");
+      }, { once: true });
+    }
+
     function setView(view) {
       ui.gameTab.classList.toggle("is-active", view === "game");
       ui.trainingTab.classList.toggle("is-active", view === "training");
@@ -97,7 +130,7 @@
             <span>${recipe.boardLabel}</span>
             <span class="menu-board__dots">....................................</span>
           </div>
-          <span data-price></span>
+          <span data-price class="flip-value"></span>
         `;
         ui.boardRows.appendChild(row);
         cache.boardRows[recipe.key] = row.querySelector("[data-price]");
@@ -112,7 +145,7 @@
           <h3>${recipe.name}</h3>
           <div class="order-meta">
             <span>${recipe.cupName}</span>
-            <span data-price></span>
+            <span data-price class="flip-value"></span>
           </div>
           <p>${recipe.note}</p>
         `;
@@ -123,13 +156,13 @@
 
     function updateBoard() {
       const parts = game.getDateParts();
-      ui.boardClock.textContent = parts.time;
-      ui.boardDay.textContent = parts.day;
-      ui.boardDate.textContent = parts.date;
+      setFlipText(ui.boardClock, parts.time);
+      setFlipText(ui.boardDay, parts.day);
+      setFlipText(ui.boardDate, parts.date);
       Data.recipes.forEach((recipe) => {
         const price = game.formatEuro(game.getLivePrice(recipe, Date.now()));
-        if (cache.boardRows[recipe.key]) cache.boardRows[recipe.key].textContent = price;
-        if (cache.menuRows[recipe.key]) cache.menuRows[recipe.key].textContent = price;
+        if (cache.boardRows[recipe.key]) setFlipText(cache.boardRows[recipe.key], price);
+        if (cache.menuRows[recipe.key]) setFlipText(cache.menuRows[recipe.key], price);
       });
     }
 
@@ -259,5 +292,6 @@
     updateBoard();
     renderState(game.getSnapshot());
     window.setInterval(updateBoard, 1000);
+    global.__VelvetPourApp = { game, setView };
   });
 }(window));

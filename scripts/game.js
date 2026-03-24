@@ -235,8 +235,10 @@
       }
     }
 
-    function customerFactory() {
-      const recipe = Data.recipes[Math.floor(Math.random() * Data.recipes.length)];
+    function customerFactory(forcedRecipeKey) {
+      const recipe = forcedRecipeKey
+        ? Data.recipes.find((entry) => entry.key === forcedRecipeKey) || Data.recipes[0]
+        : Data.recipes[Math.floor(Math.random() * Data.recipes.length)];
       const look = Data.customerLooks[Math.floor(Math.random() * Data.customerLooks.length)];
       const name = Data.customerNames[Math.floor(Math.random() * Data.customerNames.length)];
       return {
@@ -504,6 +506,28 @@
       if (state.soundEnabled) sfx("start");
       notify(true);
     }
+
+    function debugSetPlayer(tileX, tileY) {
+      player.x = clamp(tileX, 0, GRID_W - 1);
+      player.y = clamp(tileY, 0, GRID_H - 1);
+      player.targetX = player.x;
+      player.targetY = player.y;
+      player.task = null;
+      player.taskTime = 0;
+      player.taskDuration = 0;
+      notify(true);
+    }
+
+    function debugInjectCustomer(recipeKey) {
+      state.customers.push(customerFactory(recipeKey));
+      notify(true);
+    }
+
+    function debugClearCustomers() {
+      state.customers = [];
+      notify(true);
+    }
+
     function resize() {
       const rect = canvas.getBoundingClientRect();
       const ratio = window.devicePixelRatio || 1;
@@ -819,7 +843,21 @@
     notify(true);
     requestAnimationFrame(loop);
 
-    return { startShift, stopShift, toggleSound, trashCup, setView, doAction, getSnapshot: snapshot, formatEuro, getLivePrice, getDateParts };
+    return {
+      startShift,
+      stopShift,
+      toggleSound,
+      trashCup,
+      setView,
+      doAction,
+      getSnapshot: snapshot,
+      formatEuro,
+      getLivePrice,
+      getDateParts,
+      debugSetPlayer,
+      debugInjectCustomer,
+      debugClearCustomers
+    };
   }
 
   global.VelvetPourGame = { createGame, formatEuro, getLivePrice, getDateParts };

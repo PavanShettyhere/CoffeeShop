@@ -6,7 +6,7 @@ Modern browser coffee-shop game with a Habbo-inspired isometric room, station-ba
 
 ## Preview
 
-![Gameplay preview](./assets/gameplay-preview.svg)
+![Gameplay preview](./assets/velvet-pour-ui.png)
 
 ## What It Is
 
@@ -20,6 +20,7 @@ The current build includes:
 - Recipe-driven coffee crafting for espresso, americano, cappuccino, latte, flat white, and mocha
 - Score, combo, coins, reputation, and shift timer systems
 - Built-in Web Audio sound effects and ambient cafe texture
+- Animated live menu board with flip-style time and price changes
 
 ## Coffee Procedures
 
@@ -53,9 +54,12 @@ Then open `http://localhost:8000`.
 
 ## Project Files
 
-- [index.html](./index.html): app structure and UI shell
-- [styles.css](./styles.css): modern glassmorphism and responsive layout styling
-- [script.js](./script.js): gameplay, rendering, recipes, customers, and sound
+- [index.html](./index.html): app structure and gameplay shell
+- [styles/app.css](./styles/app.css): responsive UI, game layout, and board animations
+- [scripts/data.js](./scripts/data.js): recipes, stations, customers, and sources
+- [scripts/game.js](./scripts/game.js): gameplay systems, rendering, and audio
+- [scripts/main.js](./scripts/main.js): UI rendering, board updates, and interactions
+- [tools/browser-check.mjs](./tools/browser-check.mjs): local browser QA and screenshot capture
 
 ## Extra Visual
 

@@ -12,7 +12,7 @@
       <div class="brand-block">
         <div class="eyebrow">Virtual Coffee Shop Game</div>
         <h1>Velvet Pour</h1>
-        <p>Habbo-inspired cafe management with training mode and a live coffee board.</p>
+        <p>Own the floor, build the drinks, and keep the queue moving.</p>
       </div>
 
       <div class="topbar-controls">
@@ -36,43 +36,71 @@
         <div class="stat-card"><span>Shift</span><strong id="shiftValue">03:00</strong></div>
         <div class="stat-card"><span>Served</span><strong id="servedValue">0</strong></div>
         <div class="stat-card"><span>Combo</span><strong id="comboValue">x1</strong></div>
-        <div class="stat-card stat-wide"><span>Rank</span><strong id="rankValue">Apprentice</strong></div>
+        <div class="stat-card stat-rank"><span>Rank</span><strong id="rankValue">Apprentice</strong></div>
       </div>
     </header>
 
     <div class="content-grid">
       <main class="main-column">
         <section id="gameView" class="view-panel is-active">
-          <div class="stage-stack">
-            <div class="stage-topbar">
-              <div class="stage-overlay overlay-card" id="overlayCard">
+          <div class="game-layout">
+            <aside class="left-rail">
+              <div class="overlay-card glass-card" id="overlayCard">
                 <div class="eyebrow">Shift Briefing</div>
                 <h2>Open The Cafe</h2>
                 <p>Move through the room, build the requested drinks on the correct machines, and serve them at the front counter.</p>
                 <p class="overlay-tip">Start Shift unlocks audio and begins the customer rush.</p>
               </div>
 
+              <div class="controls-card glass-card">
+                <div class="eyebrow">Controls</div>
+                <p>Move with click, <code>WASD</code>, or arrow keys. Use machine actions from the side panel or press <code>1</code>, <code>2</code>, <code>3</code>.</p>
+              </div>
+
+              <section class="glass-card station-card">
+                <div class="eyebrow">Nearby Station</div>
+                <h2 id="stationTitle">Walk up to a machine</h2>
+                <p id="stationDescription">Each machine exposes the actions you can perform there.</p>
+                <div id="actionList" class="action-list"></div>
+              </section>
+
+              <section class="glass-card cup-card">
+                <div class="eyebrow">Current Cup</div>
+                <h2 id="cupTitle">No drink in hand</h2>
+                <p id="cupSubtitle">Grab a cup from the cup wall to begin.</p>
+                <div id="cupProgress" class="cup-progress"></div>
+              </section>
+            </aside>
+
+            <div class="stage-stack">
               <div class="menu-board" id="menuBoard">
                 <div class="menu-board__header">
                   <span>HOT DRINKS</span>
-                  <span id="boardClock">00:00</span>
+                  <span id="boardClock" class="flip-value">00:00</span>
                 </div>
                 <div class="menu-board__meta">
-                  <span id="boardDay">MONDAY</span>
-                  <span id="boardDate">24 MAR 2026</span>
+                  <span id="boardDay" class="flip-value">MONDAY</span>
+                  <span id="boardDate" class="flip-value">24 MAR 2026</span>
                 </div>
                 <div id="boardRows" class="menu-board__rows"></div>
               </div>
 
-              <div class="controls-card glass-card">
-                <div class="eyebrow">Controls</div>
-                <p>Move with click, <code>WASD</code>, or arrow keys. Use machine actions with the buttons on the right or press <code>1</code>, <code>2</code>, <code>3</code>.</p>
+              <div class="stage-shell panel">
+                <canvas id="gameCanvas" width="1440" height="960" aria-label="Velvet Pour game world"></canvas>
               </div>
             </div>
 
-            <div class="stage-shell panel">
-              <canvas id="gameCanvas" width="1440" height="960" aria-label="Velvet Pour game world"></canvas>
-            </div>
+            <aside class="right-rail panel">
+              <section class="glass-card queue-card">
+                <div class="eyebrow">Customer Queue</div>
+                <div id="ordersList" class="orders-list"></div>
+              </section>
+
+              <section class="glass-card menu-card">
+                <div class="eyebrow">Coffee Menu</div>
+                <div id="recipeList" class="recipe-list"></div>
+              </section>
+            </aside>
           </div>
         </section>
 
@@ -92,32 +120,6 @@
           </div>
         </section>
       </main>
-
-      <aside class="sidebar panel">
-        <section class="glass-card">
-          <div class="eyebrow">Nearby Station</div>
-          <h2 id="stationTitle">Walk up to a machine</h2>
-          <p id="stationDescription">Each machine exposes the actions you can perform there.</p>
-          <div id="actionList" class="action-list"></div>
-        </section>
-
-        <section class="glass-card">
-          <div class="eyebrow">Current Cup</div>
-          <h2 id="cupTitle">No drink in hand</h2>
-          <p id="cupSubtitle">Grab a cup from the cup wall to begin.</p>
-          <div id="cupProgress" class="cup-progress"></div>
-        </section>
-
-        <section class="glass-card grow-card">
-          <div class="eyebrow">Customer Queue</div>
-          <div id="ordersList" class="orders-list"></div>
-        </section>
-
-        <section class="glass-card menu-card">
-          <div class="eyebrow">Coffee Menu</div>
-          <div id="recipeList" class="recipe-list"></div>
-        </section>
-      </aside>
     </div>
   </div>
 
