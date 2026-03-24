@@ -237,11 +237,12 @@
       const height = ui.avatarCanvas.height;
       const isWoman = profile.gender === "woman";
       const isMan = profile.gender === "man";
-      const torsoWidth = isMan ? 134 : (isWoman ? 116 : 124);
-      const torsoHeight = isWoman ? 96 : 90;
+      const torsoWidth = isMan ? 138 : (isWoman ? 112 : 124);
+      const torsoHeight = isWoman ? 98 : 90;
       const headRadius = isWoman ? 48 : 52;
-      const hipSpread = isWoman ? 48 : 36;
-      const shoulderSpread = isMan ? 72 : 60;
+      const shoulderSpread = isMan ? 76 : (isWoman ? 58 : 66);
+      const waistSpread = isMan ? 52 : (isWoman ? 40 : 46);
+      const hipSpread = isWoman ? 58 : (isMan ? 44 : 50);
       const armOffset = isMan ? 78 : 70;
       ctx.clearRect(0, 0, width, height);
       const grad = ctx.createLinearGradient(0, 0, 0, height);
@@ -315,21 +316,28 @@
       }
       ctx.fillStyle = profile.shirt;
       ctx.beginPath();
-      ctx.roundRect(x - torsoWidth / 2, y - 48, torsoWidth, torsoHeight, 24);
+      ctx.moveTo(x - shoulderSpread, y - 44);
+      ctx.lineTo(x + shoulderSpread, y - 44);
+      ctx.lineTo(x + waistSpread, y - 2);
+      ctx.lineTo(x + hipSpread, y + torsoHeight - 54);
+      ctx.lineTo(x - hipSpread, y + torsoHeight - 54);
+      ctx.lineTo(x - waistSpread, y - 2);
+      ctx.closePath();
       ctx.fill();
       ctx.fillStyle = profile.apron;
       ctx.beginPath();
-      ctx.roundRect(x - 30, y - 34, 60, 82, 18);
+      ctx.roundRect(x - (isWoman ? 26 : 30), y - 34, isWoman ? 52 : 60, 82, 18);
       ctx.fill();
       ctx.fillStyle = profile.skin;
       ctx.beginPath();
       ctx.roundRect(x - armOffset, y - 34, 12, 52, 6);
       ctx.roundRect(x + armOffset - 12, y - 34, 12, 52, 6);
       ctx.fill();
+      drawPreviewHair(ctx, profile, x, y, headRadius, "back");
       ctx.beginPath();
       ctx.arc(x, y - 102, headRadius, 0, Math.PI * 2);
       ctx.fill();
-      drawPreviewHair(ctx, profile, x, y, headRadius);
+      drawPreviewHair(ctx, profile, x, y, headRadius, "front");
       if (profile.cap === "barista") {
         ctx.fillStyle = "#f0a24d";
         ctx.beginPath();
@@ -390,50 +398,81 @@
       ctx.fillRect(x - 10, y - 76, 20, 4);
     }
 
-    function drawPreviewHair(ctx, profile, x, y, headRadius) {
+    function drawPreviewHair(ctx, profile, x, y, headRadius, layer) {
       const hair = profile.hair;
       ctx.fillStyle = hair;
       if (profile.hairStyle === "bob") {
+        if (layer === "back") {
+          ctx.beginPath();
+          ctx.roundRect(x - headRadius - 8, y - 126, (headRadius + 8) * 2, 60, 18);
+          ctx.fill();
+          return;
+        }
         ctx.beginPath();
-        ctx.arc(x, y - 112, headRadius + 6, Math.PI, Math.PI * 2);
-        ctx.lineTo(x + headRadius + 6, y - 62);
-        ctx.lineTo(x - headRadius - 6, y - 62);
+        ctx.arc(x, y - 118, headRadius + 4, Math.PI, Math.PI * 2);
+        ctx.lineTo(x + headRadius - 4, y - 90);
+        ctx.lineTo(x - headRadius + 4, y - 90);
         ctx.closePath();
         ctx.fill();
       } else if (profile.hairStyle === "ponytail") {
+        if (layer === "back") {
+          ctx.fillRect(x + 28, y - 108, 20, 62);
+          ctx.beginPath();
+          ctx.roundRect(x - headRadius - 4, y - 128, (headRadius + 4) * 2, 52, 18);
+          ctx.fill();
+          return;
+        }
         ctx.beginPath();
-        ctx.arc(x, y - 112, headRadius + 4, Math.PI, Math.PI * 2);
-        ctx.lineTo(x + headRadius + 4, y - 84);
-        ctx.lineTo(x - headRadius - 4, y - 84);
+        ctx.arc(x, y - 118, headRadius + 3, Math.PI, Math.PI * 2);
+        ctx.lineTo(x + headRadius - 3, y - 92);
+        ctx.lineTo(x - headRadius + 3, y - 92);
         ctx.closePath();
         ctx.fill();
-        ctx.fillRect(x + 30, y - 94, 18, 54);
       } else if (profile.hairStyle === "bun") {
+        if (layer === "back") {
+          ctx.beginPath();
+          ctx.roundRect(x - headRadius - 3, y - 124, (headRadius + 3) * 2, 50, 18);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(x + 2, y - 154, 18, 0, Math.PI * 2);
+          ctx.fill();
+          return;
+        }
         ctx.beginPath();
-        ctx.arc(x, y - 112, headRadius + 3, Math.PI, Math.PI * 2);
-        ctx.lineTo(x + headRadius + 3, y - 84);
-        ctx.lineTo(x - headRadius - 3, y - 84);
+        ctx.arc(x, y - 118, headRadius + 2, Math.PI, Math.PI * 2);
+        ctx.lineTo(x + headRadius - 2, y - 92);
+        ctx.lineTo(x - headRadius + 2, y - 92);
         ctx.closePath();
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(x + 2, y - 154, 18, 0, Math.PI * 2);
         ctx.fill();
       } else if (profile.hairStyle === "braid") {
+        if (layer === "back") {
+          ctx.fillRect(x + 26, y - 108, 12, 84);
+          ctx.beginPath();
+          ctx.roundRect(x - headRadius - 3, y - 124, (headRadius + 3) * 2, 50, 18);
+          ctx.fill();
+          return;
+        }
         ctx.beginPath();
-        ctx.arc(x, y - 112, headRadius + 3, Math.PI, Math.PI * 2);
-        ctx.lineTo(x + headRadius + 3, y - 84);
-        ctx.lineTo(x - headRadius - 3, y - 84);
+        ctx.arc(x, y - 118, headRadius + 2, Math.PI, Math.PI * 2);
+        ctx.lineTo(x + headRadius - 2, y - 92);
+        ctx.lineTo(x - headRadius + 2, y - 92);
         ctx.closePath();
         ctx.fill();
-        ctx.fillRect(x + 26, y - 88, 10, 68);
       } else if (profile.hairStyle === "long") {
+        if (layer === "back") {
+          ctx.beginPath();
+          ctx.roundRect(x - headRadius - 8, y - 126, (headRadius + 8) * 2, 96, 20);
+          ctx.fill();
+          return;
+        }
         ctx.beginPath();
-        ctx.arc(x, y - 112, headRadius + 5, Math.PI, Math.PI * 2);
-        ctx.lineTo(x + headRadius + 5, y - 42);
-        ctx.lineTo(x - headRadius - 5, y - 42);
+        ctx.arc(x, y - 118, headRadius + 4, Math.PI, Math.PI * 2);
+        ctx.lineTo(x + headRadius - 2, y - 92);
+        ctx.lineTo(x - headRadius + 2, y - 92);
         ctx.closePath();
         ctx.fill();
       } else if (profile.hairStyle === "fade") {
+        if (layer === "back") return;
         ctx.beginPath();
         ctx.arc(x, y - 120, headRadius - 6, Math.PI, Math.PI * 2);
         ctx.lineTo(x + headRadius - 6, y - 100);
@@ -441,6 +480,7 @@
         ctx.closePath();
         ctx.fill();
       } else if (profile.hairStyle === "quiff") {
+        if (layer === "back") return;
         ctx.beginPath();
         ctx.arc(x, y - 114, headRadius + 4, Math.PI, Math.PI * 2);
         ctx.lineTo(x + headRadius + 4, y - 92);
@@ -449,12 +489,21 @@
         ctx.closePath();
         ctx.fill();
       } else if (profile.hairStyle === "curly") {
+        if (layer === "back") {
+          for (let i = -2; i <= 2; i += 1) {
+            ctx.beginPath();
+            ctx.arc(x + i * 18, y - 122 + Math.abs(i) * 2, 16, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          return;
+        }
         for (let i = -2; i <= 2; i += 1) {
           ctx.beginPath();
-          ctx.arc(x + i * 18, y - 122 + Math.abs(i) * 2, 16, 0, Math.PI * 2);
+          ctx.arc(x + i * 12, y - 122 + Math.abs(i) * 1, 12, 0, Math.PI * 2);
           ctx.fill();
         }
       } else if (profile.hairStyle === "slick") {
+        if (layer === "back") return;
         ctx.beginPath();
         ctx.ellipse(x, y - 118, headRadius + 6, 26, -0.18, Math.PI, Math.PI * 2);
         ctx.lineTo(x + headRadius, y - 92);
@@ -462,13 +511,20 @@
         ctx.closePath();
         ctx.fill();
       } else if (profile.hairStyle === "wave") {
+        if (layer === "back") {
+          ctx.beginPath();
+          ctx.roundRect(x - headRadius - 6, y - 126, (headRadius + 6) * 2, 64, 18);
+          ctx.fill();
+          return;
+        }
         ctx.beginPath();
-        ctx.arc(x, y - 112, headRadius + 5, Math.PI, Math.PI * 2);
-        ctx.lineTo(x + headRadius + 5, y - 70);
-        ctx.lineTo(x - headRadius - 5, y - 70);
+        ctx.arc(x, y - 118, headRadius + 3, Math.PI, Math.PI * 2);
+        ctx.lineTo(x + headRadius - 4, y - 92);
+        ctx.lineTo(x - headRadius + 4, y - 92);
         ctx.closePath();
         ctx.fill();
       } else {
+        if (layer === "back") return;
         ctx.beginPath();
         ctx.arc(x, y - 112, headRadius + 2, Math.PI, Math.PI * 2);
         ctx.lineTo(x + headRadius + 2, y - 88);
