@@ -224,6 +224,119 @@
     }
   };
 
+  const restaurantOptions = {
+    defaultProfile: {
+      wallTheme: "midnight",
+      floorTheme: "blueprint",
+      tableCount: "2",
+      tableStyle: "walnut",
+      machineFinish: "classic",
+      counterStyle: "oak"
+    },
+    wallThemes: [
+      { value: "midnight", label: "Midnight Blue" },
+      { value: "terracotta", label: "Terracotta Cafe" },
+      { value: "olive", label: "Olive Loft" },
+      { value: "cream", label: "Cream Gallery" }
+    ],
+    floorThemes: [
+      { value: "blueprint", label: "Blue Tile" },
+      { value: "sandstone", label: "Sandstone Tile" },
+      { value: "forest", label: "Forest Tile" },
+      { value: "charcoal", label: "Charcoal Tile" }
+    ],
+    tableCounts: [
+      { value: "1", label: "1 table" },
+      { value: "2", label: "2 tables" },
+      { value: "3", label: "3 tables" },
+      { value: "4", label: "4 tables" }
+    ],
+    tableStyles: [
+      { value: "walnut", label: "Walnut" },
+      { value: "oak", label: "Oak" },
+      { value: "espresso", label: "Espresso" },
+      { value: "sage", label: "Sage" }
+    ],
+    machineFinishes: [
+      { value: "classic", label: "Classic Brass" },
+      { value: "chrome", label: "Cool Chrome" },
+      { value: "sage", label: "Sage Bar" },
+      { value: "rose", label: "Rose Copper" }
+    ],
+    counterStyles: [
+      { value: "oak", label: "Oak Counter" },
+      { value: "charcoal", label: "Charcoal Counter" },
+      { value: "cream", label: "Cream Counter" },
+      { value: "teak", label: "Teak Counter" }
+    ],
+    wallThemeMap: {
+      midnight: { top: "#183142", left: "#132635", right: "#183142", trim: "#26495c" },
+      terracotta: { top: "#5e3d33", left: "#442c25", right: "#6a4637", trim: "#9b6a55" },
+      olive: { top: "#32463e", left: "#24352f", right: "#40574d", trim: "#6c947d" },
+      cream: { top: "#58524d", left: "#4c453f", right: "#6a645d", trim: "#c7b69f" }
+    },
+    floorThemeMap: {
+      blueprint: { edge: "#244151", even: "#315468", odd: "#284658" },
+      sandstone: { edge: "#5f5142", even: "#7b6753", odd: "#6e5d4b" },
+      forest: { edge: "#2f4c47", even: "#3f675f", odd: "#355950" },
+      charcoal: { edge: "#2d333d", even: "#434d59", odd: "#39434e" }
+    },
+    tableStyleMap: {
+      walnut: "#7b5a47",
+      oak: "#967053",
+      espresso: "#5b4338",
+      sage: "#65725f"
+    },
+    counterStyleMap: {
+      oak: { color: "#6e5648", accent: "#ffbc57" },
+      charcoal: { color: "#4c545f", accent: "#90e7ff" },
+      cream: { color: "#8b7a6e", accent: "#ffc777" },
+      teak: { color: "#815a42", accent: "#ffd891" }
+    },
+    machineFinishMap: {
+      classic: {
+        default: { shift: 0, accentShift: 0 },
+        cups: { color: "#b98e61", accent: "#ffcf87" },
+        grinder: { color: "#5d6974", accent: "#67d9df" },
+        espresso: { color: "#875c48", accent: "#ff8a3d" },
+        steam: { color: "#728390", accent: "#c8f6ff" },
+        water: { color: "#4c6f88", accent: "#90e7ff" },
+        syrup: { color: "#83535d", accent: "#ffc777" },
+        topping: { color: "#65715e", accent: "#f7f8ff" }
+      },
+      chrome: {
+        default: { shift: 16, accentShift: 8 },
+        cups: { color: "#a7aeb5", accent: "#eef4f9" },
+        grinder: { color: "#6b7782", accent: "#9fe7f0" },
+        espresso: { color: "#7b6e66", accent: "#cfe4ff" },
+        steam: { color: "#8897a3", accent: "#e5f9ff" },
+        water: { color: "#68849d", accent: "#bfefff" },
+        syrup: { color: "#6f6570", accent: "#e9c8a3" },
+        topping: { color: "#7a8872", accent: "#ffffff" }
+      },
+      sage: {
+        default: { shift: -6, accentShift: 6 },
+        cups: { color: "#8e8b72", accent: "#f6d995" },
+        grinder: { color: "#4a625a", accent: "#84e0d7" },
+        espresso: { color: "#6e5a46", accent: "#ffc27a" },
+        steam: { color: "#6e837a", accent: "#d8fff4" },
+        water: { color: "#4d7280", accent: "#9af1ff" },
+        syrup: { color: "#6d5960", accent: "#ffd2a0" },
+        topping: { color: "#5c6f59", accent: "#fffef1" }
+      },
+      rose: {
+        default: { shift: 4, accentShift: 10 },
+        cups: { color: "#bd927f", accent: "#ffd8ab" },
+        grinder: { color: "#71616f", accent: "#ffd6ef" },
+        espresso: { color: "#936757", accent: "#ffc68c" },
+        steam: { color: "#8c8792", accent: "#f6ecff" },
+        water: { color: "#5d788e", accent: "#b7f1ff" },
+        syrup: { color: "#8b5f68", accent: "#ffd6b6" },
+        topping: { color: "#6d7363", accent: "#fff8f8" }
+      }
+    }
+  };
+
   const sources = [
     { label: "Coffee Association of Canada: Styles of Coffee", href: "https://coffeeassoc.com/coffee-101/styles-of-coffee/" },
     { label: "Starbucks At Home: Classic Cappuccino", href: "https://athome.starbucks.com/recipe/classic-cappuccino" },
@@ -241,6 +354,7 @@
     customerNames,
     customerLooks,
     sources,
-    avatarOptions
+    avatarOptions,
+    restaurantOptions
   };
 }(window));

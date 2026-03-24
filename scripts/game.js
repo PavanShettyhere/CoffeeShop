@@ -4,6 +4,12 @@
   const TILE_H = 48;
   const GRID_W = 10;
   const GRID_H = 10;
+  const TABLE_TILES = [
+    { x: 0.9, y: 6.1 },
+    { x: 6.8, y: 6.9 },
+    { x: 2.2, y: 5.2 },
+    { x: 7.7, y: 4.4 }
+  ];
 
   function clamp(v, min, max) {
     return Math.max(min, Math.min(max, v));
@@ -51,6 +57,17 @@
     };
   }
 
+  function cloneRestaurantProfile(profile) {
+    return {
+      wallTheme: profile.wallTheme,
+      floorTheme: profile.floorTheme,
+      tableCount: profile.tableCount,
+      tableStyle: profile.tableStyle,
+      machineFinish: profile.machineFinish,
+      counterStyle: profile.counterStyle
+    };
+  }
+
   function createGame(options) {
     const canvas = options.canvas;
     const ctx = canvas.getContext("2d");
@@ -80,7 +97,8 @@
       uiTick: 0,
       soundEnabled: true,
       renderClock: 0,
-      playerProfile: cloneProfile(Data.avatarOptions.defaultProfile)
+      playerProfile: cloneProfile(Data.avatarOptions.defaultProfile),
+      restaurantProfile: cloneRestaurantProfile(Data.restaurantOptions.defaultProfile)
     };
 
     function isoToScreen(tileX, tileY) {
@@ -182,6 +200,7 @@
         rank: getRank(state.score),
         soundEnabled: state.soundEnabled,
         playerProfile: cloneProfile(state.playerProfile),
+        restaurantProfile: cloneRestaurantProfile(state.restaurantProfile),
         currentStation: station,
         availableActions: station ? (station.id === "counter" ? ["serve"] : station.actions.slice()) : [],
         activeCup: state.activeCup ? { steps: state.activeCup.steps.slice(), bestMatch: bestRecipeMatch(state.activeCup.steps) } : null,
@@ -548,6 +567,15 @@
 
     function getPlayerProfile() {
       return cloneProfile(state.playerProfile);
+    }
+
+    function setRestaurantProfile(profile) {
+      state.restaurantProfile = cloneRestaurantProfile(profile);
+      notify(true);
+    }
+
+    function getRestaurantProfile() {
+      return cloneRestaurantProfile(state.restaurantProfile);
     }
 
     function debugSetPlayer(tileX, tileY) {
