@@ -436,7 +436,7 @@
         filter.frequency.value = 280;
         filter.Q.value = 0.8;
         gain.gain.setValueAtTime(0.0001, now);
-        gain.gain.exponentialRampToValueAtTime(0.26, now + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.38, now + 0.03);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
         noise.buffer = buffer;
         noise.connect(filter).connect(gain);
@@ -453,7 +453,7 @@
         filter.type = "highpass";
         filter.frequency.value = 520;
         gain.gain.setValueAtTime(0.0001, now);
-        gain.gain.exponentialRampToValueAtTime(0.24, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.34, now + 0.02);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.36);
         noise.buffer = buffer;
         noise.connect(filter).connect(gain);
@@ -470,7 +470,7 @@
         filter.type = "highpass";
         filter.frequency.value = 1200;
         gain.gain.setValueAtTime(0.0001, now);
-        gain.gain.exponentialRampToValueAtTime(0.14, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.22, now + 0.02);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.26);
         noise.buffer = buffer;
         noise.connect(filter).connect(gain);
@@ -482,7 +482,7 @@
         const osc = audio.context.createOscillator();
         osc.type = "sine";
         gain.gain.setValueAtTime(0.0001, now);
-        gain.gain.exponentialRampToValueAtTime(0.09, now + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.16, now + 0.03);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
         osc.connect(gain);
         osc.frequency.setValueAtTime(460, now);
@@ -495,7 +495,7 @@
         const osc = audio.context.createOscillator();
         osc.type = "triangle";
         gain.gain.setValueAtTime(0.0001, now);
-        gain.gain.exponentialRampToValueAtTime(0.16, now + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.24, now + 0.03);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
         osc.connect(gain);
         osc.frequency.setValueAtTime(520, now);
@@ -513,7 +513,7 @@
         filter.type = "bandpass";
         filter.frequency.value = 860;
         gain.gain.setValueAtTime(0.0001, now);
-        gain.gain.exponentialRampToValueAtTime(0.18, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.26, now + 0.02);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
         noise.buffer = buffer;
         noise.connect(filter).connect(gain);
@@ -527,7 +527,7 @@
         pulse.type = "square";
         tail.type = "triangle";
         gain.gain.setValueAtTime(0.0001, now);
-        gain.gain.exponentialRampToValueAtTime(0.18, now + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.28, now + 0.03);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
         pulse.connect(gain);
         tail.connect(gain);
@@ -545,7 +545,7 @@
       osc.type = { serve: "triangle", arrive: "sine", error: "sawtooth", leave: "square", trash: "square", cup: "triangle", start: "triangle", stop: "triangle", happy: "sine", angry: "square" }[kind] || "square";
       const cfg = {
         brew: { f: 180, e: 120, d: 0.2, v: 0.14 },
-        cup: { f: 760, e: 980, d: 0.16, v: 0.18 },
+        cup: { f: 760, e: 980, d: 0.16, v: 0.26 },
         serve: { f: 720, e: 1080, d: 0.28, v: 0.16 },
         arrive: { f: 420, e: 520, d: 0.2, v: 0.1 },
         error: { f: 220, e: 180, d: 0.22, v: 0.12 },
@@ -585,6 +585,14 @@
       player.task = actionKey;
       player.taskTime = 0;
       player.taskDuration = durations[actionKey] || 1;
+      if (actionKey.indexOf("cup_") === 0) sfx("cup");
+      else if (actionKey === "grind") sfx("grind");
+      else if (actionKey === "espresso" || actionKey === "ristretto") sfx("espresso");
+      else if (actionKey === "hot_water") sfx("water");
+      else if (actionKey === "mocha_sauce") sfx("syrup");
+      else if (actionKey === "whip") sfx("whip");
+      else if (actionKey === "foam_cap" || actionKey === "microfoam") sfx("foam");
+      else if (actionKey === "steam_milk") sfx("steam");
       speak(Data.actionMeta[actionKey].label, "#c8f6ff");
       notify(true);
     }
@@ -592,17 +600,8 @@
     function finishTask(actionKey) {
       if (actionKey.indexOf("cup_") === 0) {
         state.activeCup = { steps: [actionKey] };
-        sfx("cup");
       } else if (state.activeCup) {
         state.activeCup.steps.push(actionKey);
-        if (actionKey === "grind") sfx("grind");
-        else if (actionKey === "espresso" || actionKey === "ristretto") sfx("espresso");
-        else if (actionKey === "hot_water") sfx("water");
-        else if (actionKey === "mocha_sauce") sfx("syrup");
-        else if (actionKey === "whip") sfx("whip");
-        else if (actionKey === "foam_cap" || actionKey === "microfoam") sfx("foam");
-        else if (actionKey === "steam_milk") sfx("steam");
-        else sfx("brew");
       }
       emitParticles(player.x, player.y, actionKey === "steam_milk" ? "#dffcff" : "#ffbc57");
       player.task = null;

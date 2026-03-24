@@ -253,7 +253,7 @@ button:disabled {
 
 .left-rail {
   display: grid;
-  grid-template-rows: minmax(128px, 0.84fr) minmax(0, 1fr) minmax(0, 0.95fr);
+  grid-template-rows: minmax(0, 1.12fr) minmax(0, 1fr) minmax(74px, 0.38fr);
   gap: 12px;
   align-self: stretch;
   overflow: hidden;
@@ -383,26 +383,26 @@ button:disabled {
   width: 100%;
   min-height: 0;
   overflow: auto;
-  padding: 10px 12px;
+  padding: 8px 10px;
 }
 
 .overlay-card h2 {
-  margin: 0 0 3px;
-  font-size: 0.9rem;
+  margin: 0 0 2px;
+  font-size: 0.76rem;
   line-height: 1.05;
 }
 
 .overlay-card p {
   margin: 0;
   color: var(--muted);
-  font-size: 0.72rem;
-  line-height: 1.22;
+  font-size: 0.64rem;
+  line-height: 1.16;
 }
 
 .overlay-tip {
-  margin-top: 4px;
+  margin-top: 3px;
   color: var(--gold);
-  font-size: 0.68rem;
+  font-size: 0.6rem;
 }
 
 .training-panel {
