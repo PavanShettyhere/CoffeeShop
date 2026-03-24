@@ -30,7 +30,7 @@ body {
 }
 
 body {
-  overflow: auto;
+  overflow: hidden;
 }
 
 button,
@@ -55,8 +55,8 @@ code {
   min-height: 100vh;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
-  gap: 16px;
-  padding: 16px;
+  gap: 12px;
+  padding: 12px;
 }
 
 .panel,
@@ -80,52 +80,54 @@ code {
 .eyebrow {
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  font-size: 0.72rem;
+  font-size: 0.64rem;
   color: var(--gold);
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 .topbar {
   display: grid;
   grid-template-columns: minmax(260px, 1.2fr) minmax(360px, 1fr) minmax(280px, 0.9fr);
-  gap: 16px;
+  gap: 12px;
   align-items: start;
-  padding: 18px;
+  padding: 14px 16px;
 }
 
 .brand-block h1 {
-  margin: 0 0 10px;
-  font-size: clamp(2.4rem, 4vw, 4rem);
-  line-height: 0.94;
+  margin: 0 0 6px;
+  font-size: clamp(2rem, 3vw, 3.15rem);
+  line-height: 0.9;
 }
 
 .brand-block p {
   margin: 0;
   color: var(--muted);
-  max-width: 40ch;
+  max-width: 36ch;
+  font-size: 0.92rem;
 }
 
 .topbar-controls {
   display: grid;
-  gap: 12px;
+  gap: 8px;
 }
 
 .view-switch,
 .button-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 }
 
 button {
   appearance: none;
   border-radius: 16px;
-  padding: 13px 18px;
+  padding: 10px 14px;
   border: 1px solid var(--line);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(20, 33, 44, 0.9));
   color: var(--text);
   cursor: pointer;
   transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+  font-size: 0.94rem;
 }
 
 button:hover {
@@ -149,7 +151,7 @@ button:disabled {
 }
 
 .tab-button {
-  min-width: 172px;
+  min-width: 156px;
   font-weight: 700;
 }
 
@@ -162,26 +164,26 @@ button:disabled {
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
 }
 
 .stat-card {
   background: rgba(10, 19, 27, 0.86);
   border: 1px solid var(--line);
   border-radius: 18px;
-  padding: 12px 14px;
+  padding: 10px 12px;
 }
 
 .stat-card span {
   display: block;
   color: var(--muted);
-  font-size: 0.86rem;
+  font-size: 0.78rem;
 }
 
 .stat-card strong {
   display: block;
-  margin-top: 4px;
-  font-size: 1.55rem;
+  margin-top: 2px;
+  font-size: 1.3rem;
 }
 
 .stat-wide {
@@ -192,7 +194,7 @@ button:disabled {
   min-height: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 330px;
-  gap: 16px;
+  gap: 12px;
   align-items: start;
 }
 
@@ -211,20 +213,20 @@ button:disabled {
 
 .stage-stack {
   display: grid;
-  gap: 14px;
+  gap: 10px;
 }
 
 .stage-topbar {
   display: grid;
   grid-template-columns: minmax(220px, 0.88fr) minmax(320px, 1.18fr) minmax(220px, 0.88fr);
-  gap: 14px;
+  gap: 10px;
   align-items: start;
 }
 
 .stage-shell {
   position: relative;
-  height: clamp(500px, 62vh, 720px);
-  min-height: 500px;
+  height: clamp(470px, 66vh, 760px);
+  min-height: 470px;
   overflow: hidden;
   background:
     radial-gradient(circle at top center, rgba(103, 217, 223, 0.08), transparent 28%),
@@ -240,9 +242,9 @@ button:disabled {
 .menu-board {
   position: relative;
   width: 100%;
-  max-width: 460px;
+  max-width: 420px;
   justify-self: center;
-  padding: 14px 16px;
+  padding: 12px 14px;
   border-radius: 18px;
   color: #f4f6f7;
   background:
@@ -253,7 +255,7 @@ button:disabled {
 .menu-board::before {
   content: "";
   position: absolute;
-  inset: 12px;
+  inset: 10px;
   border-radius: 10px;
   background: #15110f;
   z-index: -1;
@@ -271,24 +273,24 @@ button:disabled {
 }
 
 .menu-board__header {
-  font-size: 0.94rem;
+  font-size: 0.84rem;
   font-weight: 700;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .menu-board__meta {
-  font-size: 0.76rem;
+  font-size: 0.68rem;
   color: #d8d8d8;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .menu-board__rows {
   display: grid;
-  gap: 4px;
+  gap: 3px;
 }
 
 .menu-board__row {
-  font-size: 0.84rem;
+  font-size: 0.76rem;
 }
 
 .menu-board__name {
@@ -308,39 +310,43 @@ button:disabled {
 .overlay-card {
   position: relative;
   width: 100%;
-  min-height: 164px;
-  padding: 18px;
+  min-height: 132px;
+  padding: 14px;
   border-radius: 20px;
   background: rgba(7, 14, 20, 0.88);
   border: 1px solid rgba(255, 255, 255, 0.09);
 }
 
 .overlay-card h2 {
-  margin: 0 0 8px;
+  margin: 0 0 6px;
+  font-size: 1.55rem;
 }
 
 .overlay-card p {
   margin: 0;
   color: var(--muted);
+  font-size: 0.92rem;
 }
 
 .overlay-tip {
-  margin-top: 10px;
+  margin-top: 6px;
   color: var(--gold);
 }
 
 .controls-card {
   width: 100%;
-  min-height: 164px;
+  min-height: 132px;
+  padding: 14px;
 }
 
 .controls-card p {
   margin: 0;
   color: var(--muted);
+  font-size: 0.9rem;
 }
 
 .training-panel {
-  height: calc(100vh - 228px);
+  height: calc(100vh - 176px);
   overflow: auto;
   padding: 18px;
 }
@@ -373,24 +379,25 @@ button:disabled {
 .sidebar {
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr) auto;
-  gap: 14px;
+  gap: 12px;
   min-height: 0;
-  padding: 16px;
+  padding: 14px;
   overflow: auto;
-  max-height: calc(100vh - 32px);
+  max-height: calc(100vh - 24px);
   align-self: start;
   position: sticky;
-  top: 16px;
+  top: 12px;
 }
 
 .sidebar h2 {
-  margin: 0 0 8px;
-  font-size: 1.4rem;
+  margin: 0 0 6px;
+  font-size: 1.2rem;
 }
 
 .sidebar p {
   margin: 0;
   color: var(--muted);
+  font-size: 0.92rem;
 }
 
 .action-list,
@@ -399,8 +406,8 @@ button:disabled {
 .recipe-list,
 .source-list {
   display: grid;
-  gap: 10px;
-  margin-top: 14px;
+  gap: 8px;
+  margin-top: 10px;
 }
 
 .action-button,
@@ -411,7 +418,7 @@ button:disabled {
   background: rgba(10, 18, 25, 0.82);
   border: 1px solid var(--line);
   border-radius: 16px;
-  padding: 12px;
+  padding: 10px;
 }
 
 .action-button {
@@ -425,16 +432,16 @@ button:disabled {
   display: block;
   margin-top: 4px;
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
 }
 
 .order-meta {
   display: flex;
   justify-content: space-between;
   gap: 8px;
-  margin-top: 8px;
+  margin-top: 6px;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.78rem;
 }
 
 .grow-card {
@@ -442,7 +449,7 @@ button:disabled {
 }
 
 .orders-list {
-  max-height: 230px;
+  max-height: 205px;
   overflow: auto;
 }
 
@@ -451,7 +458,7 @@ button:disabled {
 }
 
 .recipe-list {
-  max-height: 320px;
+  max-height: 250px;
   overflow: auto;
 }
 
@@ -480,6 +487,10 @@ button:disabled {
 }
 
 @media (max-width: 1320px) {
+  body {
+    overflow: auto;
+  }
+
   .app-shell {
     min-height: auto;
   }
