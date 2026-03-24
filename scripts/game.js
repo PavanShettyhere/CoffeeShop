@@ -78,6 +78,59 @@
       };
     }
 
+    function shade(hex, amount) {
+      const raw = parseInt(hex.replace("#", ""), 16);
+      const r = clamp((raw >> 16) + amount, 0, 255);
+      const g = clamp(((raw >> 8) & 255) + amount, 0, 255);
+      const b = clamp((raw & 255) + amount, 0, 255);
+      return `rgb(${r}, ${g}, ${b})`;
+    }
+
+    function roundedRect(x, y, w, h, r, fill) {
+      ctx.fillStyle = fill;
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function prism(x, y, width, depth, height, color) {
+      const hw = width / 2;
+      const hd = depth / 2;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + hw, y + hd);
+      ctx.lineTo(x + hw, y + hd - height);
+      ctx.lineTo(x, y - height);
+      ctx.closePath();
+      ctx.fillStyle = shade(color, 10);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x - hw, y + hd);
+      ctx.lineTo(x - hw, y + hd - height);
+      ctx.lineTo(x, y - height);
+      ctx.closePath();
+      ctx.fillStyle = shade(color, -18);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(x, y - height);
+      ctx.lineTo(x + hw, y + hd - height);
+      ctx.lineTo(x, y + depth - height);
+      ctx.lineTo(x - hw, y + hd - height);
+      ctx.closePath();
+      ctx.fillStyle = color;
+      ctx.fill();
+    }
+
     function bestRecipeMatch(steps) {
       let best = null;
       let bestPrefix = -1;
@@ -107,7 +160,7 @@
         reputation: state.reputation,
         shiftLabel: formatTime(state.shiftRemaining),
         customersServed: state.customersServed,
-        comboLabel: `x${state.combo.toFixed(2).replace(/\\.00$/, "")}`,
+        comboLabel: `x${state.combo.toFixed(2).replace(/\.00$/, "")}`,
         rank: getRank(state.score),
         soundEnabled: state.soundEnabled,
         currentStation: station,
@@ -614,6 +667,116 @@
       state.floatingText.forEach((item) => {
         ctx.globalAlpha = Math.min(1, item.life); ctx.fillStyle = item.color; ctx.font = "bold 22px Gill Sans"; ctx.fillText(item.text, item.x, item.y); ctx.globalAlpha = 1;
       });
+    }
+
+    function update(dt) {
+      state.uiTick -= dt;
+      if (state.started && !state.paused && !state.gameOver) {
+        state.shiftRemaining -= dt;
+        state.spawnCooldown -= dt;
+        if (state.spawnCooldown <= 0 && state.customers.length < 4) {
+          state.customers.push(customerFactory());
+          state.spawnCooldown = Math.max(1.6, 4 - Math.min(state.customersServed * 0.1, 1.9) + Math.random() * 1.5);
+          sfx("arrive");
+        }
+        state.customers.forEach((customer, index) => { customer.patience -= dt * (index === 0 ? 3.5 : 2.4); });
+        while (state.customers[0] && state.customers[0].patience <= 0) {
+          const unhappy = state.customers.shift();
+          state.combo = 1;
+          state.reputation = Math.max(0, state.reputation - 10);
+          sfx("leave");
+          speak(`${unhappy.name} left`, "#ff687b");
+        }
+        if (state.shiftRemaining <= 0 || state.reputation <= 0) {
+          state.shiftRemaining = Math.max(0, state.shiftRemaining);
+          state.started = false;
+          state.paused = false;
+          state.gameOver = true;
+          speak(state.reputation <= 0 ? "The cafe lost confidence" : "Shift complete", "#ffbc57");
+          notify(true);
+        }
+      }
+
+      if (state.view === "game" && !state.paused && !player.task) {
+        if (player.x === player.targetX && player.y === player.targetY) {
+          if (state.keys.has("ArrowUp") || state.keys.has("w")) setTarget(player.x, player.y - 1);
+          else if (state.keys.has("ArrowDown") || state.keys.has("s")) setTarget(player.x, player.y + 1);
+          else if (state.keys.has("ArrowLeft") || state.keys.has("a")) setTarget(player.x - 1, player.y);
+          else if (state.keys.has("ArrowRight") || state.keys.has("d")) setTarget(player.x + 1, player.y);
+        }
+        const dx = player.targetX - player.x;
+        const dy = player.targetY - player.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist > 0.001) {
+          const step = Math.min(dist, player.speed * dt);
+          player.x += (dx / dist) * step;
+          player.y += (dy / dist) * step;
+        } else {
+          player.x = player.targetX;
+          player.y = player.targetY;
+        }
+      }
+
+      if (player.task) {
+        player.taskTime += dt;
+        if (player.taskTime >= player.taskDuration) finishTask(player.task);
+      }
+
+      state.particles = state.particles.filter((particle) => {
+        particle.life -= dt; particle.x += particle.vx * dt; particle.y += particle.vy * dt; particle.vy += 100 * dt; return particle.life > 0;
+      });
+      state.floatingText = state.floatingText.filter((item) => {
+        item.life -= dt; item.y -= 24 * dt; return item.life > 0;
+      });
+      notify(false);
+    }
+
+    function loop(now) {
+      const dt = Math.min((now - lastFrame) / 1000, 0.05);
+      lastFrame = now;
+      update(dt);
+      render();
+      requestAnimationFrame(loop);
+    }
+
+    function canvasClick(event) {
+      if (state.view !== "game" || state.paused) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      const station = Data.stations.find((entry) => {
+        const p = isoToScreen(entry.tile.x, entry.tile.y);
+        return Math.abs(p.x - x) < 62 && Math.abs(p.y - y) < 76;
+      });
+      if (station) {
+        setTarget(station.useTile.x, station.useTile.y);
+        return;
+      }
+      const tile = screenToTile(x, y);
+      if (canMoveTo(tile.x, tile.y)) setTarget(tile.x, tile.y);
+    }
+
+    function keyDown(event) {
+      const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+      if (audio && audio.context.state === "suspended") audio.context.resume();
+      if (["w", "a", "s", "d", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(key)) {
+        state.keys.add(key);
+        event.preventDefault();
+      }
+      if (["1", "2", "3"].includes(key)) {
+        const action = snapshot().availableActions[Number(key) - 1];
+        if (action) doAction(action);
+      }
+      if (key === " ") {
+        const action = snapshot().availableActions[0];
+        if (action) doAction(action);
+        event.preventDefault();
+      }
+    }
+
+    function keyUp(event) {
+      const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+      state.keys.delete(key);
     }
 
     canvas.addEventListener("click", canvasClick);
