@@ -11,6 +11,7 @@
   }
 
   ready(function () {
+    const STORAGE_KEY = "velvet-pour-avatar";
     const ui = {
       score: document.getElementById("scoreValue"),
       coins: document.getElementById("coinsValue"),
@@ -26,8 +27,10 @@
       moreMenu: document.querySelector(".more-menu"),
       gameTab: document.getElementById("gameTabButton"),
       trainingTab: document.getElementById("trainingTabButton"),
+      avatarTab: document.getElementById("avatarTabButton"),
       gameView: document.getElementById("gameView"),
       trainingView: document.getElementById("trainingView"),
+      avatarView: document.getElementById("avatarView"),
       overlay: document.getElementById("overlayCard"),
       stationTitle: document.getElementById("stationTitle"),
       stationDescription: document.getElementById("stationDescription"),
@@ -43,11 +46,23 @@
       boardRows: document.getElementById("boardRows"),
       trainingGrid: document.getElementById("trainingGrid"),
       sourceList: document.getElementById("sourceList"),
-      canvas: document.getElementById("gameCanvas")
+      canvas: document.getElementById("gameCanvas"),
+      avatarCanvas: document.getElementById("avatarCanvas"),
+      avatarForm: document.getElementById("avatarForm"),
+      avatarGender: document.getElementById("avatarGender"),
+      avatarCap: document.getElementById("avatarCap"),
+      avatarApply: document.getElementById("avatarApplyButton"),
+      avatarReset: document.getElementById("avatarResetButton"),
+      skinSwatches: document.getElementById("skinSwatches"),
+      shirtSwatches: document.getElementById("shirtSwatches"),
+      pantsSwatches: document.getElementById("pantsSwatches"),
+      hairSwatches: document.getElementById("hairSwatches"),
+      apronSwatches: document.getElementById("apronSwatches")
     };
 
     const cache = { actionSig: "", cupSig: "", orderSig: "", boardRows: {}, menuRows: {} };
     const game = Game.createGame({ canvas: ui.canvas, onStateChange: renderState });
+    let avatarDraft = null;
 
     function normalizeGlyph(symbol) {
       return symbol === " " ? "\u00a0" : symbol;
@@ -120,8 +135,10 @@
     function setView(view) {
       ui.gameTab.classList.toggle("is-active", view === "game");
       ui.trainingTab.classList.toggle("is-active", view === "training");
+      ui.avatarTab.classList.toggle("is-active", view === "avatar");
       ui.gameView.classList.toggle("is-active", view === "game");
       ui.trainingView.classList.toggle("is-active", view === "training");
+      ui.avatarView.classList.toggle("is-active", view === "avatar");
       closeMoreMenu();
       game.setView(view);
     }
@@ -170,7 +187,10 @@
           <span data-price class="flip-value"></span>
         `;
         ui.boardRows.appendChild(row);
-        cache.boardRows[recipe.key] = row.querySelector("[data-price]");
+        cache.boardRows[recipe.key] = {
+          row,
+          priceNode: row.querySelector("[data-price]")
+        };
       });
     }
 
@@ -186,20 +206,204 @@
           </div>
           <p>${recipe.note}</p>
         `;
-        cache.menuRows[recipe.key] = card.querySelector("[data-price]");
+        cache.menuRows[recipe.key] = {
+          row: card,
+          priceNode: card.querySelector("[data-price]")
+        };
         ui.recipeList.appendChild(card);
+      });
+    }
+
+    function loadAvatarProfile() {
+      try {
+        const raw = window.localStorage.getItem(STORAGE_KEY);
+        if (!raw) return { ...Data.avatarOptions.defaultProfile };
+        return { ...Data.avatarOptions.defaultProfile, ...JSON.parse(raw) };
+      } catch (error) {
+        return { ...Data.avatarOptions.defaultProfile };
+      }
+    }
+
+    function saveAvatarProfile(profile) {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+    }
+
+    function renderAvatarPreview(profile) {
+      const ctx = ui.avatarCanvas.getContext("2d");
+      const width = ui.avatarCanvas.width;
+      const height = ui.avatarCanvas.height;
+      ctx.clearRect(0, 0, width, height);
+      const grad = ctx.createLinearGradient(0, 0, 0, height);
+      grad.addColorStop(0, "#223b4f");
+      grad.addColorStop(1, "#101922");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, width, height);
+
+      ctx.fillStyle = "rgba(255,255,255,0.05)";
+      ctx.beginPath();
+      ctx.arc(width / 2, 150, 120, 0, Math.PI * 2);
+      ctx.fill();
+
+      const x = width / 2;
+      const y = 270;
+      ctx.fillStyle = "rgba(0,0,0,0.18)";
+      ctx.beginPath();
+      ctx.ellipse(x, y + 70, 80, 24, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = profile.pants;
+      ctx.fillRect(x - 42, y + 18, 26, 88);
+      ctx.fillRect(x + 16, y + 18, 26, 88);
+      ctx.fillStyle = "#161a1f";
+      ctx.fillRect(x - 44, y + 102, 30, 10);
+      ctx.fillRect(x + 14, y + 102, 30, 10);
+      ctx.fillStyle = profile.shirt;
+      ctx.beginPath();
+      ctx.roundRect(x - 62, y - 48, 124, 92, 24);
+      ctx.fill();
+      ctx.fillStyle = profile.apron;
+      ctx.beginPath();
+      ctx.roundRect(x - 30, y - 34, 60, 82, 18);
+      ctx.fill();
+      ctx.fillStyle = profile.skin;
+      ctx.beginPath();
+      ctx.roundRect(x - 74, y - 34, 12, 52, 6);
+      ctx.roundRect(x + 62, y - 34, 12, 52, 6);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x, y - 102, 50, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = profile.hair;
+      ctx.beginPath();
+      ctx.arc(x, y - 112, 54, Math.PI, Math.PI * 2);
+      ctx.lineTo(x + 54, y - 86);
+      ctx.lineTo(x - 54, y - 86);
+      ctx.closePath();
+      ctx.fill();
+      if (profile.cap === "barista") {
+        ctx.fillStyle = "#f0a24d";
+        ctx.beginPath();
+        ctx.roundRect(x - 54, y - 156, 108, 26, 10);
+        ctx.fill();
+        ctx.fillRect(x - 18, y - 132, 56, 10);
+      } else if (profile.cap === "visor") {
+        ctx.fillStyle = "#f0a24d";
+        ctx.beginPath();
+        ctx.roundRect(x - 44, y - 148, 88, 18, 8);
+        ctx.fill();
+        ctx.fillRect(x - 12, y - 132, 48, 8);
+      } else if (profile.cap === "beanie") {
+        ctx.fillStyle = profile.hair;
+        ctx.beginPath();
+        ctx.roundRect(x - 46, y - 156, 92, 38, 14);
+        ctx.fill();
+      }
+      ctx.fillStyle = "#1c1714";
+      ctx.fillRect(x - 18, y - 100, 10, 4);
+      ctx.fillRect(x + 8, y - 100, 10, 4);
+      ctx.fillStyle = "#cf7b7b";
+      ctx.fillRect(x - 10, y - 76, 20, 4);
+    }
+
+    function markSelectedSwatch(container, value) {
+      Array.from(container.querySelectorAll(".swatch")).forEach((button) => {
+        button.classList.toggle("is-selected", button.dataset.value === value);
+      });
+    }
+
+    function buildSwatches(container, values, key) {
+      values.forEach((value) => {
+        const button = document.createElement("button");
+        button.className = "swatch";
+        button.type = "button";
+        button.dataset.value = value;
+        button.style.setProperty("--swatch", value);
+        button.addEventListener("click", () => {
+          avatarDraft[key] = value;
+          markSelectedSwatch(container, value);
+          renderAvatarPreview(avatarDraft);
+        });
+        container.appendChild(button);
+      });
+    }
+
+    function syncAvatarForm(profile) {
+      avatarDraft = { ...profile };
+      ui.avatarGender.value = avatarDraft.gender;
+      ui.avatarCap.value = avatarDraft.cap;
+      markSelectedSwatch(ui.skinSwatches, avatarDraft.skin);
+      markSelectedSwatch(ui.shirtSwatches, avatarDraft.shirt);
+      markSelectedSwatch(ui.pantsSwatches, avatarDraft.pants);
+      markSelectedSwatch(ui.hairSwatches, avatarDraft.hair);
+      markSelectedSwatch(ui.apronSwatches, avatarDraft.apron);
+      renderAvatarPreview(avatarDraft);
+    }
+
+    function buildAvatarStudio() {
+      Data.avatarOptions.genders.forEach((entry) => {
+        const option = document.createElement("option");
+        option.value = entry.value;
+        option.textContent = entry.label;
+        ui.avatarGender.appendChild(option);
+      });
+      Data.avatarOptions.caps.forEach((entry) => {
+        const option = document.createElement("option");
+        option.value = entry.value;
+        option.textContent = entry.label;
+        ui.avatarCap.appendChild(option);
+      });
+      buildSwatches(ui.skinSwatches, Data.avatarOptions.skinTones, "skin");
+      buildSwatches(ui.shirtSwatches, Data.avatarOptions.shirts, "shirt");
+      buildSwatches(ui.pantsSwatches, Data.avatarOptions.pants, "pants");
+      buildSwatches(ui.hairSwatches, Data.avatarOptions.hair, "hair");
+      buildSwatches(ui.apronSwatches, Data.avatarOptions.aprons, "apron");
+
+      ui.avatarGender.addEventListener("change", () => {
+        avatarDraft.gender = ui.avatarGender.value;
+        renderAvatarPreview(avatarDraft);
+      });
+      ui.avatarCap.addEventListener("change", () => {
+        avatarDraft.cap = ui.avatarCap.value;
+        renderAvatarPreview(avatarDraft);
+      });
+
+      ui.avatarForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        game.setPlayerProfile(avatarDraft);
+        saveAvatarProfile(avatarDraft);
+        setView("game");
+      });
+
+      ui.avatarReset.addEventListener("click", () => {
+        syncAvatarForm({ ...Data.avatarOptions.defaultProfile });
       });
     }
 
     function updateBoard() {
       const parts = game.getDateParts();
       setFlipText(ui.boardClock, parts.time);
-      setFlipText(ui.boardDay, parts.day);
-      setFlipText(ui.boardDate, parts.date);
-      Data.recipes.forEach((recipe) => {
-        const price = game.formatEuro(game.getLivePrice(recipe, Date.now()));
-        if (cache.boardRows[recipe.key]) setFlipText(cache.boardRows[recipe.key], price);
-        if (cache.menuRows[recipe.key]) setText(cache.menuRows[recipe.key], price);
+      setText(ui.boardDay, parts.day);
+      setText(ui.boardDate, parts.date);
+      const now = Date.now();
+      const priced = Data.recipes.map((recipe) => {
+        const livePrice = game.getLivePrice(recipe, now);
+        return {
+          recipe,
+          livePrice,
+          priceLabel: game.formatEuro(livePrice)
+        };
+      }).sort((a, b) => b.livePrice - a.livePrice);
+
+      priced.forEach((entry) => {
+        const boardRow = cache.boardRows[entry.recipe.key];
+        const menuRow = cache.menuRows[entry.recipe.key];
+        if (boardRow) {
+          setFlipText(boardRow.priceNode, entry.priceLabel);
+          ui.boardRows.appendChild(boardRow.row);
+        }
+        if (menuRow) {
+          setText(menuRow.priceNode, entry.priceLabel);
+          ui.recipeList.appendChild(menuRow.row);
+        }
       });
     }
 
@@ -321,11 +525,16 @@
     ui.trash.addEventListener("click", game.trashCup);
     ui.gameTab.addEventListener("click", () => setView("game"));
     ui.trainingTab.addEventListener("click", () => setView("training"));
+    ui.avatarTab.addEventListener("click", () => setView("avatar"));
 
     buildTraining();
     buildSources();
     buildBoard();
     buildSidebarMenu();
+    buildAvatarStudio();
+    const savedProfile = loadAvatarProfile();
+    syncAvatarForm(savedProfile);
+    game.setPlayerProfile(savedProfile);
     updateBoard();
     renderState(game.getSnapshot());
     window.setInterval(updateBoard, 1000);
